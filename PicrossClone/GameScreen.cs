@@ -14,8 +14,10 @@ namespace PicrossClone {
 
         //Puzzle to solve
         PuzzleData puzzle;
+
+        //Counts the puzzle board
         ITileCounter tileCounter;
-        CountData[] countDataArr;
+        CountDisplay countDisplay;
 
         //Mouse position converted to grid point
         private Point mouseGridPoint;
@@ -44,17 +46,22 @@ namespace PicrossClone {
         }
 
         private void countPuzzle() {
+            //Figuring out the width and height of puzzle board
             int totalTilesHorizontal = puzzle.puzzle.GetLength(0);
             int totalTilesVertical = puzzle.puzzle.GetLength(1);
-            countDataArr = new CountData[totalTilesHorizontal + totalTilesVertical];
+            //Initalizing string array we will be using to store count strings
+            string[] countDataArr = new string[totalTilesHorizontal + totalTilesVertical];
+            //Count horizontally
             for (int i = 0; i < totalTilesHorizontal; i++) {
-                countDataArr[i].countedStr = tileCounter.countRow(i);
-                countDataArr[i].amtOfSpaces = countDataArr[i].countedStr.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length - 1;
+                countDataArr[i] = tileCounter.countRow(i);
             }
+            //Count vertically
             for (int i = 0; i < totalTilesVertical; i++) {
-                countDataArr[i + totalTilesHorizontal].countedStr = tileCounter.countCol(i);
-                countDataArr[i].amtOfSpaces = countDataArr[i].countedStr.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length - 1;
+                countDataArr[i + totalTilesHorizontal] = tileCounter.countCol(i);
             }
+            //Create new CountDisplay object and throw the string array into it along with width and height of the puzzle board
+            countDisplay = new CountDisplay(totalTilesHorizontal, totalTilesVertical, countDataArr);
+            countDisplay.SetPositions(new Vector2(-16, 10), new Vector2(6, -4));
         }
 
         private bool checkForCompletion() {
@@ -106,10 +113,8 @@ namespace PicrossClone {
             gameBoard.Update(_gameTime, mouseGridPoint, inputHelper.CheckForLeftHold());
         }
         public override void Draw(SpriteBatch _spriteBatch) {
-            for (int i = 0; i < puzzle.puzzle.GetLength(0); i++) {
-                _spriteBatch.DrawString(Assets.font, countDataArr[i].countedStr, new Vector2(-16 - (countDataArr[i].amtOfSpaces * 15), -4 + (i * 16)), Color.Black);
-            }
             gameBoard.Draw(_spriteBatch);
+            countDisplay.Draw(_spriteBatch);
         }
     }
 }

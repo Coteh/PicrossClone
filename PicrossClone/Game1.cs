@@ -45,7 +45,7 @@ namespace PicrossClone {
             screen = new GameScreen();
 
             cam = new Camera2D();
-            cam.Position = new Vector2(-50, -50);
+            cam.Position = new Vector2(-100, -100);
             screen.setCamera(cam);
 
             base.Initialize();

@@ -13,14 +13,16 @@ namespace PicrossClone {
 
         public string countRow(int _row) {
             string countedStr = "";
-            int prevCounted = 0, count = 0, rowWidth = board.GetLength(0);
-            for (int i = 0; i <= rowWidth; i++) {
-                int counted = (i < rowWidth) ? board[i, _row] : 0;
+            int prevCounted = 0, count = 0, rowLength = board.GetLength(0);
+            for (int i = 0; i <= rowLength; i++) {
+                int counted = (i < rowLength) ? board[i, _row] : 0;
                 if (counted != 0) {
                     count++;
                 } else if (counted != prevCounted) {
+                    if (countedStr != "") {
+                        countedStr += " ";
+                    }
                     countedStr += count;
-                    if (i < rowWidth - 1) countedStr += " ";
                     count = 0;
                 }
                 prevCounted = counted;
@@ -29,14 +31,13 @@ namespace PicrossClone {
         }
         public string countCol(int _col) {
             string countedStr = "";
-            int prevCounted = 0, count = 0, colHeight = board.GetLength(0);
-            for (int i = 0; i <= colHeight; i++) {
-                int counted = (i < colHeight) ? board[_col, i] : 0;
+            int prevCounted = 0, count = 0, colLength = board.GetLength(1);
+            for (int i = 0; i <= colLength; i++) {
+                int counted = (i < colLength) ? board[_col, i] : 0;
                 if (counted != 0) {
                     count++;
                 } else if (counted != prevCounted) {
                     countedStr += count;
-                    if (i < colHeight - 1) countedStr += " ";
                     count = 0;
                 }
                 prevCounted = counted;
