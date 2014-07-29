@@ -11,6 +11,17 @@ namespace PicrossClone {
         //General Game Objects
         PaintBoard paintBoard;
 
+        //Height and width of board
+        int boardHeight, boardWidth;
+
+        //Puzzle data
+        PuzzleData puzzle;
+
+        //Count stuff
+        ITileCounter tileCounter;
+        string[] countDataArr;
+        CountDisplay countDisplay;
+
         //Mouse position converted to grid point
         private Point mouseGridPoint;
 
@@ -19,14 +30,44 @@ namespace PicrossClone {
 
         public override void Initalize() {
             base.Initalize();
-            paintBoard = new PaintBoard(16, 16);
+            boardHeight = 16;
+            boardWidth = 16;
+            puzzle = new PuzzleData();
+            puzzle.name = "New Puzzle";
+            puzzle.puzzle = new int[boardWidth, boardHeight];
+            paintBoard = new PaintBoard(boardWidth, boardHeight);
+            //temporary
+            tileCounter = new BoardTileCounter(puzzle.puzzle);
+            countDataArr = new string[boardWidth + boardHeight];
+            for (int i = 0; i < boardWidth; i++) {
+                countDataArr[i] = tileCounter.countRow(i);
+            }
+            for (int i = 0; i < boardHeight; i++) {
+                countDataArr[boardWidth + i] = tileCounter.countRow(i);
+            }
+            countDisplay = new CountDisplay(boardWidth, boardHeight, countDataArr);
+            countDisplay.SetPositions(new Vector2(-16, 10), new Vector2(6, -4));
+            //select events
             paintBoard.OnSelectEvent += new EventHandler(OnSelect);
             paintBoard.OnHighlightEvent += new EventHandler(OnHighlight);
+        }
+
+        //private void adjustBoardSize(int _width, int _height) {
+        //    boardHeight = _height;
+        //    boardWidth = _width;
+        //}
+
+        private void calculatePoint(int _x, int _y) {
+            countDataArr[_y] = tileCounter.countRow(_y);
+            countDataArr[boardHeight + _x] = tileCounter.countCol(_x);
         }
 
         protected override void OnSelect(object _sender, EventArgs _e) {
             base.OnSelect(_sender, _e);
             paintBoard.ChangeTileColor(mouseGridPoint.X, mouseGridPoint.Y, 1);
+            if (tileCounter.update(mouseGridPoint.X, mouseGridPoint.Y, 1)) {
+                calculatePoint(mouseGridPoint.X, mouseGridPoint.Y);
+            }
         }
 
         protected override void OnHighlight(object _sender, EventArgs _e) {
@@ -47,9 +88,12 @@ namespace PicrossClone {
             mouseGridPoint = paintBoard.getMouseToGridCoords(mousePos + camera.Position);
             //Updating paintBoard, providing the mouse grid point as well as left hold check
             paintBoard.Update(_gameTime, mouseGridPoint, inputHelper.CheckForLeftHold());
+            //Updating count display
+            //countDisplay.
         }
 
         public override void Draw(SpriteBatch _spriteBatch) {
+            countDisplay.Draw(_spriteBatch);
             paintBoard.Draw(_spriteBatch);
         }
     }

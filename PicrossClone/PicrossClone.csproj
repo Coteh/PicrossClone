@@ -41,6 +41,7 @@
     </Compile>
     <Compile Include="BoardTileCounter.cs" />
     <Compile Include="ConcreteBoard.cs" />
+    <Compile Include="CountData.cs" />
     <Compile Include="CountDisplay.cs" />
     <Compile Include="Extenders.cs" />
     <Compile Include="Game1.cs" />

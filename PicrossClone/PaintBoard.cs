@@ -7,9 +7,10 @@ using System.Text;
 
 namespace PicrossClone {
     public class PaintBoard : ConcreteBoard {
+
         public PaintBoard(int _gridWidth, int _gridHeight)
             : base(_gridWidth, _gridHeight) {
-            
+                
         }
 
         public override void Select() {
