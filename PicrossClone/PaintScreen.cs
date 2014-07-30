@@ -19,7 +19,7 @@ namespace PicrossClone {
 
         //Count stuff
         ITileCounter tileCounter;
-        string[] countDataArr;
+        CountData[] countDataArr;
         CountDisplay countDisplay;
 
         //Mouse position converted to grid point
@@ -38,7 +38,7 @@ namespace PicrossClone {
             paintBoard = new PaintBoard(boardWidth, boardHeight);
             //temporary
             tileCounter = new BoardTileCounter(puzzle.puzzle);
-            countDataArr = new string[boardWidth + boardHeight];
+            countDataArr = new CountData[boardWidth + boardHeight];
             for (int i = 0; i < boardWidth; i++) {
                 countDataArr[i] = tileCounter.countRow(i);
             }

@@ -9,9 +9,9 @@ namespace PicrossClone {
     public class CountDisplay {
         int boardWidth, boardHeight, spacing = 16;
         Vector2 leftPosStart, topPosStart;
-        string[] countedStrArr;
+        CountData[] countedStrArr;
 
-        public CountDisplay(int _boardWidth, int _boardHeight, string[] _countedStrArr) {
+        public CountDisplay(int _boardWidth, int _boardHeight, CountData[] _countedStrArr) {
             boardWidth = _boardWidth;
             boardHeight = _boardHeight;
             countedStrArr = _countedStrArr;
@@ -25,12 +25,12 @@ namespace PicrossClone {
 
         public void Draw(SpriteBatch _spriteBatch) {
             for (int i = 0; i < boardWidth; i++) {
-                _spriteBatch.DrawString(Assets.font, countedStrArr[i], new Vector2(leftPosStart.X, leftPosStart.Y + (i * spacing)), Alignment.Left, Color.Black);
+                _spriteBatch.DrawString(Assets.font, countedStrArr[i].strCountedData, new Vector2(leftPosStart.X, leftPosStart.Y + (i * spacing)), Alignment.Left, Color.Black);
             }
             for (int i = 0; i < boardHeight; i++) {
-                int colCountLength = countedStrArr[i + boardWidth].Length;
+                int colCountLength = countedStrArr[i + boardWidth].countedData.Length;
                 for (int j = colCountLength - 1; j >= 0; j--) {
-                    _spriteBatch.DrawString(Assets.font, countedStrArr[i + boardWidth][j].ToString(), new Vector2(topPosStart.X + (i * spacing), 16 + topPosStart.Y - (spacing * (colCountLength - j))), Alignment.Top, Color.Black);
+                    _spriteBatch.DrawString(Assets.font, ""+countedStrArr[i + boardWidth].countedData[j], new Vector2(topPosStart.X + (i * spacing), 16 + topPosStart.Y - (spacing * (colCountLength - j))), Alignment.Top, Color.Black);
                 }
             }
         }

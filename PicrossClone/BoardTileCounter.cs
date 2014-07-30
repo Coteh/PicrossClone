@@ -6,55 +6,89 @@ using System.Text;
 namespace PicrossClone {
     public class BoardTileCounter : ITileCounter {
         private int[,] board;
-        private int boardWidth, boardHeight;
+        private int boardWidth, boardHeight, maxCountWidth, maxCountHeight;
+
+        int[] currCountedArr;
+        int currCountedCursor = 0; //curses through the above int array
+
+        private enum CountAlignment{
+            Horizontal = 0,
+            Vertical = 1
+        }
 
         public BoardTileCounter(int[,] _board) {
             board = _board;
             boardWidth = board.GetLength(0);
             boardHeight = board.GetLength(1);
+            maxCountWidth = boardWidth / 2; //the most amount of counts that the rows can possibly have
+            maxCountHeight = boardHeight / 2; //the most amount of counts that the columns can possibly have
         }
 
-        public string countRow(int _row) {
-            string countedStr = "";
-            int prevCounted = 0, count = 0;
-            for (int i = 0; i <= boardWidth; i++) {
-                int counted = (i < boardWidth) ? board[i, _row] : 0;
+        public CountData countRow(int _row) {
+            return count(boardWidth, CountAlignment.Horizontal, _row);
+        }
+        public CountData countCol(int _col) {
+            return count(boardWidth, CountAlignment.Vertical, _col);
+        }
+        private CountData count(int _length, CountAlignment _alignment, int _disposition) {
+            CountData countData;
+            currCountedCursor = 0;
+            //Declaring local variables to use
+            int useHorizontal = 0, useVertical = 0, countAmount = 0, prevCounted = 0;
+            //Setting up for appropriate alignment
+            switch (_alignment) {
+                case CountAlignment.Vertical:
+                    currCountedArr = new int[boardHeight / 2];
+                    useVertical = 1;
+                    break;
+                case CountAlignment.Horizontal:
+                default:
+                    currCountedArr = new int[boardWidth / 2];
+                    useHorizontal = 1;
+                    break;
+            }
+            //Loop through each value of the row/column
+            for (int i = 0; i <= _length; i++) {
+                int counted = (i < _length) ? board[(useVertical * _disposition) + (useHorizontal * i), (useHorizontal * _disposition) + (useVertical * i)] : 0;
                 if (counted != 0) {
-                    count++;
+                    countAmount++;
                 } else if (counted != prevCounted) {
-                    if (countedStr != "") {
-                        countedStr += " ";
-                    }
-                    countedStr += count;
-                    count = 0;
+                    currCountedArr[currCountedCursor] = countAmount; //add counted amount into array
+                    currCountedCursor++;
+                    countAmount = 0;
                 }
                 prevCounted = counted;
             }
             //If nothing was counted up to this point
-            if (countedStr == "") {
-                countedStr = "0"; //fill row with 0
+            if (currCountedCursor == 0) {
+                countData.countedData = new int[] { 0 }; //finish it off with an int array that just has 0 in it
+            } else {
+                countData.countedData = dumpIntoIntArr(); //dump the array contents into this array
             }
-            return countedStr;
+            countData.strCountedData = turnIntoString(countData.countedData);
+            return countData;
         }
-        public string countCol(int _col) {
-            string countedStr = "";
-            int prevCounted = 0, count = 0;
-            for (int i = 0; i <= boardHeight; i++) {
-                int counted = (i < boardHeight) ? board[_col, i] : 0;
-                if (counted != 0) {
-                    count++;
-                } else if (counted != prevCounted) {
-                    countedStr += count;
-                    count = 0;
+
+        private int[] dumpIntoIntArr() {
+            //Dumps contents from the counted int array into this int array, then returns the array
+            int[] arrToReturn = new int[currCountedCursor]; //whatever amount currCountedCursor is is the amount of ints we are going to put into this int array
+            for (int i = 0; i < currCountedCursor; i++) {
+                arrToReturn[i] = currCountedArr[i];
+            }
+            return arrToReturn;
+        }
+
+        private string turnIntoString(int[] _intArr) {
+            string strToReturn = "";
+            for (int i = 0; i < _intArr.Length; i++) {
+                strToReturn += _intArr[i];
+                if (i < _intArr.Length) {
+                    strToReturn += " ";
                 }
-                prevCounted = counted;
             }
-            //If nothing was counted up to this point
-            if (countedStr == "") {
-                countedStr = "0"; //fill column with 0
-            }
-            return countedStr;
+            return strToReturn;
         }
+
         public bool update(int _xIndex, int _yIndex, int _value) {
             if (_xIndex >= 0 && _xIndex < boardWidth
                 && _yIndex >= 0 && _yIndex < boardHeight) {

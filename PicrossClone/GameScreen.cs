@@ -50,7 +50,7 @@ namespace PicrossClone {
             int totalTilesHorizontal = puzzle.puzzle.GetLength(0);
             int totalTilesVertical = puzzle.puzzle.GetLength(1);
             //Initalizing string array we will be using to store count strings
-            string[] countDataArr = new string[totalTilesHorizontal + totalTilesVertical];
+            CountData[] countDataArr = new CountData[totalTilesHorizontal + totalTilesVertical];
             //Count horizontally
             for (int i = 0; i < totalTilesHorizontal; i++) {
                 countDataArr[i] = tileCounter.countRow(i);

@@ -42,7 +42,7 @@ namespace PicrossClone {
             Assets.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Assets.pixel.SetData(new[] { Color.White });
 
-            screen = new PaintScreen();
+            screen = new GameScreen();
 
             cam = new Camera2D();
             cam.Position = new Vector2(-100, -100);
