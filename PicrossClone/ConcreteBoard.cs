@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using GameClasses;
 
 namespace PicrossClone {
     public class ConcreteBoard : Board {
@@ -72,11 +73,11 @@ namespace PicrossClone {
             }
         }
 
-        public override void Select() {
+        public override void Select(SelectEventState _selectState) {
             if (currMousePoint == prevClickedPoint) {
                 return;
             }
-            OnSelect(EventArgs.Empty);
+            OnSelect(new SelectEventArgs(_selectState));
             prevClickedPoint = currMousePoint;
         }
 
@@ -94,16 +95,16 @@ namespace PicrossClone {
                 && _yIndex >= 0 && _yIndex < board.GetLength(1));
         }
 
-        public void Update(GameTime _gameTime, Point _mouseGridPoint, bool _isLeftMouseHeld) {
+        public void Update(GameTime _gameTime, Point _mouseGridPoint, SelectEventState _selectState) {
             //Assigning the mouse point to passed in point
             currMousePoint = _mouseGridPoint;
             //Highlight function
             Highlight();
             //Checking if selected
-            if (_isLeftMouseHeld) {
+            if (_selectState != SelectEventState.NONE) {
                 isMouseHeld = true;
                 //Select function
-                Select();
+                Select(_selectState);
             } else {
                 if (isMouseHeld) {
                     Select_Release();

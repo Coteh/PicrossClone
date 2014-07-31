@@ -109,8 +109,15 @@ namespace PicrossClone {
             Vector2 mousePos = inputHelper.GetMousePosition();
             //Converting mouse position to grid points
             mouseGridPoint = gameBoard.getMouseToGridCoords(mousePos + camera.Position);
-            //Updating gameboard, providing the mouse grid point as well as left hold check
-            gameBoard.Update(_gameTime, mouseGridPoint, inputHelper.CheckForLeftHold());
+            //Updating gameboard, providing the mouse grid point as well as select state
+            if (inputHelper.CheckForLeftHold()) {
+                selectState = SelectEventState.LEFT_SELECT;
+            } else if (inputHelper.CheckForRightHold()) {
+                selectState = SelectEventState.RIGHT_SELECT;
+            } else {
+                selectState = SelectEventState.NONE;
+            }
+            gameBoard.Update(_gameTime, mouseGridPoint, selectState);
         }
         public override void Draw(SpriteBatch _spriteBatch) {
             gameBoard.Draw(_spriteBatch);

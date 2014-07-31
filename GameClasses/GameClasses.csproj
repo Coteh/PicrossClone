@@ -49,10 +49,12 @@
     <Compile Include="ICamera2D.cs" />
     <Compile Include="InputHelper.cs" />
     <Compile Include="LineOpener.cs" />
+    <Compile Include="LineSaver.cs" />
     <Compile Include="Menu.cs" />
     <Compile Include="ParseHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Screen.cs" />
+    <Compile Include="SelectEventArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

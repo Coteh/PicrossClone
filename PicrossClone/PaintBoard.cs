@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameClasses;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,8 @@ namespace PicrossClone {
                 
         }
 
-        public override void Select() {
-            base.Select();
+        public override void Select(SelectEventState _selectState) {
+            base.Select(_selectState);
         }
 
         public override void Highlight() {

@@ -9,6 +9,7 @@ namespace GameClasses {
     public class ConcreteScreen : Screen {
         protected InputHelper inputHelper;
         protected ICamera2D camera;
+        protected SelectEventState selectState;
         public ConcreteScreen() {
             inputHelper = InputHelper.Instance;
             Initalize();

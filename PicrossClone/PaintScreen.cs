@@ -64,8 +64,22 @@ namespace PicrossClone {
 
         protected override void OnSelect(object _sender, EventArgs _e) {
             base.OnSelect(_sender, _e);
-            paintBoard.ChangeTileColor(mouseGridPoint.X, mouseGridPoint.Y, 1);
-            if (tileCounter.update(mouseGridPoint.X, mouseGridPoint.Y, 1)) {
+            SelectEventArgs mouseE = ((SelectEventArgs)_e);
+            int valueToUse = 0;
+            switch (mouseE.SelectState) {
+                case SelectEventState.LEFT_SELECT:
+                    valueToUse = 1;
+                    break;
+                case SelectEventState.MIDDLE_SELECT:
+                    break;
+                case SelectEventState.RIGHT_SELECT:
+                    valueToUse = 0;
+                    break;
+                default:
+                    break;
+            }
+            paintBoard.ChangeTileColor(mouseGridPoint.X, mouseGridPoint.Y, valueToUse);
+            if (tileCounter.update(mouseGridPoint.X, mouseGridPoint.Y, valueToUse)) {
                 calculatePoint(mouseGridPoint.X, mouseGridPoint.Y);
             }
         }
@@ -86,10 +100,15 @@ namespace PicrossClone {
             Vector2 mousePos = inputHelper.GetMousePosition();
             //Converting mouse position to grid points
             mouseGridPoint = paintBoard.getMouseToGridCoords(mousePos + camera.Position);
-            //Updating paintBoard, providing the mouse grid point as well as left hold check
-            paintBoard.Update(_gameTime, mouseGridPoint, inputHelper.CheckForLeftHold());
-            //Updating count display
-            //countDisplay.
+            //Updating paintBoard, providing the mouse grid point as well as select state
+            if (inputHelper.CheckForLeftHold()) {
+                selectState = SelectEventState.LEFT_SELECT;
+            } else if (inputHelper.CheckForRightHold()) {
+                selectState = SelectEventState.RIGHT_SELECT;
+            } else {
+                selectState = SelectEventState.NONE;
+            }
+            paintBoard.Update(_gameTime, mouseGridPoint, selectState);
         }
 
         public override void Draw(SpriteBatch _spriteBatch) {

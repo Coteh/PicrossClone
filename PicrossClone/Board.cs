@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameClasses;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace PicrossClone {
                 OnSelectReleaseEvent(this, _e);
             }
         }
-        public abstract void Select();
+        public abstract void Select(SelectEventState _mouseClickState);
         public abstract void Highlight();
         public abstract void Select_Release();
         public abstract void Update(GameTime _gameTime);

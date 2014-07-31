@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 
 namespace GameClasses {
-    public abstract class LineOpener {
-        public abstract string[] loadAllLines(string _filePath);
+    public interface LineOpener {
+        string[] loadAllLines(string _filePath);
     }
 
     public class ConcreteLineOpener : LineOpener {
-        public override string[] loadAllLines(string _filePath) {
+        public string[] loadAllLines(string _filePath) {
             List<string> lineList = new List<string>();
             try {
                 using (StreamReader sr = new StreamReader(_filePath)) {
