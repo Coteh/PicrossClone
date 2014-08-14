@@ -7,7 +7,15 @@ using System.Linq;
 using System.Text;
 
 namespace PicrossClone {
+    /* Event Handler
+     * Delegate method that handles event methods with the object and EventArgs signature
+     * including selecting, highlighting, and select releasing events
+     */
     public delegate void EventHandler(object _sender, EventArgs _e);
+
+    /* Abstract Board
+     * The class that all Boards inherit from
+     */
     public abstract class Board {
         public event EventHandler OnSelectEvent, OnHighlightEvent, OnSelectReleaseEvent;
         protected virtual void OnSelect(EventArgs _e) {
@@ -25,7 +33,7 @@ namespace PicrossClone {
                 OnSelectReleaseEvent(this, _e);
             }
         }
-        public abstract void Select(SelectEventState _mouseClickState);
+        public abstract void Select(InputEventState _mouseClickState);
         public abstract void Highlight();
         public abstract void Select_Release();
         public abstract void Update(GameTime _gameTime);

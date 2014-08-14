@@ -14,8 +14,8 @@ namespace PicrossClone {
                 
         }
 
-        public override void Select(SelectEventState _selectState) {
-            base.Select(_selectState);
+        public override void Select(InputEventState _inputState) {
+            base.Select(_inputState);
         }
 
         public override void Highlight() {

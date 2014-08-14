@@ -50,6 +50,7 @@
     <Compile Include="GameBoard.cs" />
     <Compile Include="GameScreen.cs" />
     <Compile Include="PaintScreen.cs" />
+    <Compile Include="PicrossScreen.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PuzzleData.cs" />

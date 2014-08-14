@@ -7,6 +7,9 @@ using System.Text;
 using GameClasses;
 
 namespace PicrossClone {
+    /* Concrete Board
+     * Board behaviours that all boards have in common
+     */
     public class ConcreteBoard : Board {
         protected int[,] board;
         protected float scale = 1.0f;
@@ -18,6 +21,7 @@ namespace PicrossClone {
         protected bool isMouseHeld;
 
         public int getTileType(int _xIndex, int _yIndex) {
+            if (!isInBounds(_xIndex, _yIndex)) return -1;
             return board[_xIndex, _yIndex];
         }
 
@@ -67,17 +71,16 @@ namespace PicrossClone {
         /// <param name="_yIndex">Y Index of Game Board</param>
         /// <param name="_tileColor">Tile color that is desired.</param>
         public void ChangeTileColor(int _xIndex, int _yIndex, int _tileColor) {
-            if (_xIndex >= 0 && _xIndex < board.GetLength(0)
-                && _yIndex >= 0 && _yIndex < board.GetLength(1)) {
+            if (isInBounds(_xIndex, _yIndex)) {
                 board[_xIndex, _yIndex] = _tileColor;
             }
         }
 
-        public override void Select(SelectEventState _selectState) {
+        public override void Select(InputEventState _selectState) {
             if (currMousePoint == prevClickedPoint) {
                 return;
             }
-            OnSelect(new SelectEventArgs(_selectState));
+            OnSelect(new InputEventArgs(_selectState));
             prevClickedPoint = currMousePoint;
         }
 
@@ -95,16 +98,21 @@ namespace PicrossClone {
                 && _yIndex >= 0 && _yIndex < board.GetLength(1));
         }
 
-        public void Update(GameTime _gameTime, Point _mouseGridPoint, SelectEventState _selectState) {
+        public void UpdateMousePoint(Point _mouseGridPoint) {
             //Assigning the mouse point to passed in point
             currMousePoint = _mouseGridPoint;
-            //Highlight function
-            Highlight();
+            //Check conditions for Highlight function
+            if (isInBounds(_mouseGridPoint.X, _mouseGridPoint.Y)) {
+                Highlight();
+            }
+        }
+
+        public void UpdateInput(InputEventState _inputState) {
             //Checking if selected
-            if (_selectState != SelectEventState.NONE) {
+            if (_inputState != InputEventState.NONE) {
                 isMouseHeld = true;
                 //Select function
-                Select(_selectState);
+                Select(_inputState);
             } else {
                 if (isMouseHeld) {
                     Select_Release();
@@ -112,8 +120,6 @@ namespace PicrossClone {
                     //Console.WriteLine("Mouse released");
                 }
             }
-            //Run general update
-            Update(_gameTime);
         }
 
         public override void Update(GameTime _gameTime) {

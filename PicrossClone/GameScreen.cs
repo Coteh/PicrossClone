@@ -7,37 +7,33 @@ using System.Text;
 using GameClasses;
 
 namespace PicrossClone {
-    public class GameScreen : ConcreteScreen {
+    public class GameScreen : PicrossScreen {
         //General Game Objects
-        GameBoard gameBoard;
         PuzzleLoader puzzleLoader;
 
         //Puzzle to solve
         PuzzleData puzzle;
 
-        //Counts the puzzle board
-        ITileCounter tileCounter;
-        CountDisplay countDisplay;
-
-        //Mouse position converted to grid point
-        private Point mouseGridPoint;
-
         //Player variables
         const int STARTING_LIVES = 3;
         int lives = STARTING_LIVES;
+
+        //Misc variables
+        private enum TilePlacementMode { None, Place, Mark, Erase }
+        private TilePlacementMode tilePlacementMode = TilePlacementMode.None;
 
         public GameScreen() : base(){
         }
 
         public override void Initalize() {
-            base.Initalize();
             puzzleLoader = new PuzzleLoader();
             puzzle = puzzleLoader.loadPuzzle(@"Content/levels/puzzle_test.pic");
             tileCounter = new BoardTileCounter(puzzle.puzzle);
             countPuzzle();
-            gameBoard = new GameBoard(puzzle.puzzle.GetLength(0), puzzle.puzzle.GetLength(1));
-            gameBoard.OnSelectEvent += new EventHandler(OnSelect);
-            gameBoard.OnHighlightEvent += new EventHandler(OnHighlight);
+            board = new GameBoard(puzzle.puzzle.GetLength(0), puzzle.puzzle.GetLength(1));
+            board.OnSelectEvent += new EventHandler(OnSelect);
+            board.OnHighlightEvent += new EventHandler(OnHighlight);
+            board.OnSelectReleaseEvent += new EventHandler(OnSelectRelease);
         }
 
         private bool checkIfWithinPuzzleConstraints(Point _gridPoint) {
@@ -61,7 +57,7 @@ namespace PicrossClone {
             }
             //Create new CountDisplay object and throw the string array into it along with width and height of the puzzle board
             countDisplay = new CountDisplay(totalTilesHorizontal, totalTilesVertical, countDataArr);
-            countDisplay.SetPositions(new Vector2(-16, 10), new Vector2(6, -4));
+            countDisplay.SetPositions(new Vector2(-16, 10), new Vector2(6, -8));
         }
 
         private bool checkForCompletion() {
@@ -69,59 +65,83 @@ namespace PicrossClone {
                 for (int j = 0; j < puzzle.puzzle.GetLength(1); j++) {
                     int puzzleTileColor = puzzle.puzzle[i, j];
                     if (puzzleTileColor != 0) //don't check empty spots in the puzzle
-                        if (gameBoard.getTileType(i, j) != puzzleTileColor) return false;
+                        if (board.getTileType(i, j) != puzzleTileColor) return false;
                 }
             }
             return true;
         }
 
+        protected override void LeftSelect() {
+            placeTile();
+        }
+
+        protected override void RightSelect() {
+            rightClickTile();
+        }
+
         protected override void OnSelect(object _sender, EventArgs _e) {
             base.OnSelect(_sender, _e);
+            InputEventArgs mouseE = ((InputEventArgs)_e);
+            inputActionsDelegate(mouseE.InputState);
+        }
+
+        protected override void OnSelectRelease(object _sender, EventArgs _e) {
+            base.OnSelectRelease(_sender, _e);
+            tilePlacementMode = TilePlacementMode.None;
+            Console.WriteLine("Select released!");
+        }
+
+        private void placeTile() {
             //Checking if corresponding tile on the puzzle int array is a correct piece
             if (checkIfWithinPuzzleConstraints(mouseGridPoint)) {
                 if (puzzle.puzzle[mouseGridPoint.X, mouseGridPoint.Y] != 1) {
                     lives--;
+                    Console.WriteLine("James put time loss here");
                     return;
                 }
             } else {
                 return;
             }
             //At this point, the tile is correct and we will make it black.
-            gameBoard.ChangeTileColor(mouseGridPoint.X, mouseGridPoint.Y, 1);
+            board.ChangeTileColor(mouseGridPoint.X, mouseGridPoint.Y, 1);
             if (checkForCompletion()) {
                 Console.WriteLine("We got a winner!");
             }
         }
 
-        protected override void OnHighlight(object _sender, EventArgs _e) {
-            base.OnHighlight(_sender, _e);
-            Point prevHighlightedPoint = gameBoard.getPrevHighlightedPoint();
-            if (gameBoard.getTileType(prevHighlightedPoint.X, prevHighlightedPoint.Y) == 2) gameBoard.ChangeTileColor(prevHighlightedPoint.X, prevHighlightedPoint.Y, 0);
-            if (gameBoard.isInBounds(mouseGridPoint.X, mouseGridPoint.Y)
-                && gameBoard.getTileType(mouseGridPoint.X, mouseGridPoint.Y) == 0) {
-                    gameBoard.ChangeTileColor(mouseGridPoint.X, mouseGridPoint.Y, 2);
-                    gameBoard.setPrevHighlightedCoords(mouseGridPoint.X, mouseGridPoint.Y);
-            }
+        private void eraseTile() {
+            //Erasing tile at mouseGridPoint location
+            board.ChangeTileColor(mouseGridPoint.X, mouseGridPoint.Y, 0);
         }
 
-        public override void Update(GameTime _gameTime) {
-            //Grabbing mouse position
-            Vector2 mousePos = inputHelper.GetMousePosition();
-            //Converting mouse position to grid points
-            mouseGridPoint = gameBoard.getMouseToGridCoords(mousePos + camera.Position);
-            //Updating gameboard, providing the mouse grid point as well as select state
-            if (inputHelper.CheckForLeftHold()) {
-                selectState = SelectEventState.LEFT_SELECT;
-            } else if (inputHelper.CheckForRightHold()) {
-                selectState = SelectEventState.RIGHT_SELECT;
-            } else {
-                selectState = SelectEventState.NONE;
-            }
-            gameBoard.Update(_gameTime, mouseGridPoint, selectState);
+        private void markTile() {
+            //Marking the tile at mouseGridPoint location
+            board.ChangeTileColor(mouseGridPoint.X, mouseGridPoint.Y, 3);
         }
-        public override void Draw(SpriteBatch _spriteBatch) {
-            gameBoard.Draw(_spriteBatch);
-            countDisplay.Draw(_spriteBatch);
+
+        private void rightClickTile() {
+            if (!checkIfWithinPuzzleConstraints(mouseGridPoint)) return;
+            if (tilePlacementMode == TilePlacementMode.None) {
+                //When user begins to hold right mouse on the board,
+                //We will figure out if the tile that mouse is currently over
+                //is erased or not
+                int currTile = board.getTileType(mouseGridPoint.X, mouseGridPoint.Y);
+                if (currTile <= -1) return;
+                else if (currTile != 0 && currTile != 2) tilePlacementMode = TilePlacementMode.Erase;
+                else tilePlacementMode = TilePlacementMode.Mark;
+            }
+            //After user begins holding right mouse button on board, and after we figure out what kind of tiles to place,
+            //we place them
+            switch (tilePlacementMode) {
+                case TilePlacementMode.Mark:
+                    markTile();
+                    break;
+                case TilePlacementMode.Erase:
+                    eraseTile();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
