@@ -89,7 +89,7 @@ namespace PicrossClone {
             return strToReturn;
         }
 
-        public bool update(int _xIndex, int _yIndex, int _value) {
+        public bool Update(int _xIndex, int _yIndex, int _value) {
             if (_xIndex >= 0 && _xIndex < boardWidth
                 && _yIndex >= 0 && _yIndex < boardHeight) {
                 board[_xIndex, _yIndex] = _value;

@@ -64,7 +64,6 @@ namespace GameClasses {
             if (inputHelper.CheckForKeyboardRelease(Keys.Enter)) {
                 inputState = InputEventState.START;
             }
-            
         }
 
         /// <summary>
