@@ -112,6 +112,9 @@ namespace GameClasses {
         public bool CheckForLeftRelease() {
             return (currMouseState.LeftButton == ButtonState.Released && prevMouseState.LeftButton == ButtonState.Pressed);
         }
+        public bool CheckForRightRelease() {
+            return (currMouseState.RightButton == ButtonState.Released && prevMouseState.RightButton == ButtonState.Pressed);
+        }
         public int CheckMouseScrollChange() {
             return currMouseState.ScrollWheelValue;
         }

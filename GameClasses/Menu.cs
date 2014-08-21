@@ -17,11 +17,13 @@ namespace GameClasses {
         List<MenuButton> menuList;
         List<bool> isButtonDynamic; //bool for checking if button is looking for a value to update its name string with
         List<string> buttonName; //the name of a button after modifications made to update it with an observable value
-        int selectedMenuIndex = 0;
+        int selectedMenuIndex = -1;
         Vector2 menuPosition;
         float spacing;
         List<Vector2> btnPosList;
         float menuButtonWidth = 256; //it's just a fake width for now
+
+        FontHolder fontHolder;
 
         string title;
 
@@ -42,6 +44,10 @@ namespace GameClasses {
 
         public void SetTitle(string _title) {
             title = _title;
+        }
+
+        public void SetFonts(FontHolder _fontHolder) {
+            fontHolder = _fontHolder;
         }
 
         public void Add(MenuButton _menuButton) {
@@ -65,7 +71,7 @@ namespace GameClasses {
         }
 
         public void Select() {
-            if (menuList.Count > 0) menuList[selectedMenuIndex].menuAction();
+            if (menuList.Count > 0 && selectedMenuIndex >= 0) menuList[selectedMenuIndex].menuAction();
         }
 
         public void Move(int _value) {
@@ -102,14 +108,16 @@ namespace GameClasses {
             }
         }
 
-        public void DrawMenu(SpriteBatch _spriteBatch, SpriteFont _font){
-            if (title != null)_spriteBatch.DrawString(_font, title, new Vector2(btnPosList[0].X, btnPosList[0].Y - (spacing * 1.5f)), Color.Black);
-            for (int i = 0; i < menuList.Count; i++) {
-                Color colorToUse = (i == selectedMenuIndex) ? highlightedColor : regularColor; ;
-                if (isMouseHeld && colorToUse == highlightedColor) {
-                    colorToUse = pressedColor;
+        public void DrawMenu(SpriteBatch _spriteBatch){
+            if (fontHolder != null) {
+                if (title != null) _spriteBatch.DrawString(fontHolder.TitleFont, title, new Vector2(btnPosList[0].X, btnPosList[0].Y - (spacing * 1.5f)), Color.Black);
+                for (int i = 0; i < menuList.Count; i++) {
+                    Color colorToUse = (i == selectedMenuIndex) ? highlightedColor : regularColor; ;
+                    if (isMouseHeld && colorToUse == highlightedColor) {
+                        colorToUse = pressedColor;
+                    }
+                    _spriteBatch.DrawString(fontHolder.BodyFont, buttonName[i], btnPosList[i], colorToUse);
                 }
-                _spriteBatch.DrawString(_font, buttonName[i], btnPosList[i], colorToUse);
             }
         }
     }

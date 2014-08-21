@@ -46,9 +46,11 @@
   <ItemGroup>
     <Compile Include="Camera2D.cs" />
     <Compile Include="ConcreteScreen.cs" />
+    <Compile Include="Extenders.cs" />
+    <Compile Include="FontHolder.cs" />
     <Compile Include="ICamera2D.cs" />
-    <Compile Include="InputEventArgs.cs" />
     <Compile Include="InputHelper.cs" />
+    <Compile Include="InputManager.cs" />
     <Compile Include="LineOpener.cs" />
     <Compile Include="LineSaver.cs" />
     <Compile Include="Menu.cs" />

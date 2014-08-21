@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -11,18 +12,17 @@ namespace GameClasses {
      * Screen behaviour that is shared by any game screen
      */
     public class ConcreteScreen : Screen {
-        protected InputHelper inputHelper;
         protected ICamera2D camera;
-        protected InputEventState inputState;
-
-        protected delegate void InputActions(InputEventState _state);
-        protected InputActions inputActionsDelegate;
 
         //temp
         protected bool isPaused;
+        protected InputState inputState;
+        protected ControlInputs controlInputs;
+        protected SelectState selectState;
+        protected MiscInputs miscInputs;
+        protected bool isExit;
 
         public ConcreteScreen() {
-            inputHelper = InputHelper.Instance;
             Initalize();
         }
 
@@ -34,36 +34,27 @@ namespace GameClasses {
             camera = _cam;
         }
 
-        /// <summary>
-        /// Events that happen when selecting something.
-        /// </summary>
-        protected virtual void OnSelect(object _sender, EventArgs _e) {}
-
-        /// <summary>
-        /// Events that happen when highlighting something.
-        /// </summary>
-        protected virtual void OnHighlight(object _sender, EventArgs _e) {}
-
-        /// <summary>
-        /// Events that happen when releasing the left mouse after selecing something.
-        /// </summary>
-        protected virtual void OnSelectRelease(object _sender, EventArgs _e) {}
+        public override void LoadContent(ContentManager _contentManager) {
+            
+        }
 
         /// <summary>
         /// Updates the Game Screen.
         /// </summary>
         /// <param name="_gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime _gameTime) {
-            inputState = InputEventState.NONE;
-            if (inputHelper.CheckForLeftHold() || inputHelper.CheckForKeyboardHold(Keys.Space)) {
-                inputState = InputEventState.LEFT_SELECT;
+        }
+
+        public override bool UpdateInput(int[] _inputState) {
+            isExit = false;
+            inputState = (InputState)_inputState[0];
+            controlInputs = (ControlInputs)_inputState[1];
+            selectState = (SelectState)_inputState[2];
+            miscInputs = (MiscInputs)_inputState[3];
+            if (miscInputs.Has(MiscInputs.ESCAPE)) {
+                isExit = true;
             }
-            if (inputHelper.CheckForRightHold() || inputHelper.CheckForKeyboardHold(Keys.B)) {
-                inputState = InputEventState.RIGHT_SELECT;
-            }
-            if (inputHelper.CheckForKeyboardRelease(Keys.Enter)) {
-                inputState = InputEventState.START;
-            }
+            return isExit;
         }
 
         /// <summary>

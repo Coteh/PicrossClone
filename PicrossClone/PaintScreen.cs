@@ -17,6 +17,10 @@ namespace PicrossClone {
         //Count stuff
         CountData[] countDataArr;
 
+        //temp
+        PuzzleSaver pzSaver;
+        System.Windows.Forms.SaveFileDialog fileSaver;
+
         public PaintScreen() : base() {
         }
 
@@ -27,7 +31,34 @@ namespace PicrossClone {
             puzzle.name = "New Puzzle";
             puzzle.puzzle = new int[boardWidth, boardHeight];
             board = new PaintBoard(boardWidth, boardHeight);
-            //temporary
+            CreateMenus();
+            InitalizeCountDisplay();
+            pzSaver = new PuzzleSaver();
+            fileSaver = new System.Windows.Forms.SaveFileDialog();
+            fileSaver.Filter = "PicrossClone Puzzle|*.pic";
+            fileSaver.Title = "Save puzzle";
+            ToggleBoardVisibility(true);
+        }
+
+        private void resetBoard() {
+            board.Clear();
+            for (int i = 0; i < boardWidth; i++) {
+                for (int j = 0; j < boardHeight; j++) {
+                    if (tileCounter.Update(i, j, 0)) {
+                        calculatePoint(i, j);
+                    }
+                }
+            }
+        }
+
+        private void adjustBoardSize(int _xMagnitude, int _yMagnitude) {
+            ((PaintBoard)board).AdjustBoard(_xMagnitude, _yMagnitude);
+            boardWidth += _xMagnitude;
+            boardHeight += _yMagnitude;
+            InitalizeCountDisplay();
+        }
+
+        private void InitalizeCountDisplay() {
             tileCounter = new BoardTileCounter(puzzle.puzzle);
             countDataArr = new CountData[boardWidth + boardHeight];
             for (int i = 0; i < boardWidth; i++) {
@@ -38,15 +69,7 @@ namespace PicrossClone {
             }
             countDisplay = new CountDisplay(boardWidth, boardHeight, countDataArr);
             countDisplay.SetPositions(new Vector2(-16, 10), new Vector2(6, -8));
-            //select events
-            board.OnSelectEvent += new EventHandler(OnSelect);
-            board.OnHighlightEvent += new EventHandler(OnHighlight);
         }
-
-        //private void adjustBoardSize(int _width, int _height) {
-        //    boardHeight = _height;
-        //    boardWidth = _width;
-        //}
 
         private void calculatePoint(int _x, int _y) {
             countDataArr[_y] = tileCounter.countRow(_y);
@@ -65,6 +88,7 @@ namespace PicrossClone {
         }
 
         protected override void LeftSelect() {
+            base.LeftSelect();
             paintTile(1);
         }
 
@@ -72,10 +96,28 @@ namespace PicrossClone {
             paintTile(0);
         }
 
-        protected override void OnSelect(object _sender, EventArgs _e) {
-            base.OnSelect(_sender, _e);
-            InputEventArgs mouseE = ((InputEventArgs)_e);
-            inputActionsDelegate(mouseE.InputState);
+        public override bool UpdateInput(int[] _inputState) {
+            base.UpdateInput(_inputState);
+            if (controlInputs.Has(ControlInputs.SAVE)) {
+                if (fileSaver.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+                    pzSaver.savePuzzle(puzzle, fileSaver.FileName);
+                }
+            } else if (controlInputs.Has(ControlInputs.NEW)) {
+                resetBoard();
+            }
+            if (controlInputs.Has(ControlInputs.ADJUST_RIGHT)) {
+                adjustBoardSize(1, 0);
+            }
+            if (controlInputs.Has(ControlInputs.ADJUST_LEFT)) {
+                adjustBoardSize(-1, 0);
+            }
+            if (controlInputs.Has(ControlInputs.ADJUST_UP)) {
+                adjustBoardSize(0, -1);
+            }
+            if (controlInputs.Has(ControlInputs.ADJUST_DOWN)) {
+                adjustBoardSize(0, 1);
+            }
+            return isExit;
         }
     }
 }

@@ -19,7 +19,8 @@ namespace PicrossClone {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        InputHelper inputHelper;
+        InputHelper inputHelper; //this is moving into input manager. remove this once everything input-related inside board is gone
+        InputManager inputManager;
 
         Screen screen;
 
@@ -39,13 +40,14 @@ namespace PicrossClone {
         /// </summary>
         protected override void Initialize() {
             inputHelper = InputHelper.Instance;
+            inputManager = new InputManager();
             Assets.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Assets.pixel.SetData(new[] { Color.White });
 
             screen = new PaintScreen();
 
             cam = new Camera2D();
-            cam.Position = new Vector2(-100, -100);
+            cam.Position = new Vector2(-200, -100);
             screen.setCamera(cam);
 
             base.Initialize();
@@ -58,7 +60,9 @@ namespace PicrossClone {
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            Assets.font = Content.Load<SpriteFont>(@"Fonts/ComicSans");
+            //Now the screen will have a LoadContent method for
+            //loading in fonts and such
+            screen.LoadContent(Content);
         }
 
         /// <summary>
@@ -79,6 +83,11 @@ namespace PicrossClone {
             //    if (screenState == ScreenState.SplashMenu) Exit();
 
             inputHelper.Update();
+            inputManager.Update(gameTime);
+            screen.UpdateMouse(inputManager.MousePosition);
+            if (screen.UpdateInput(inputManager.InputEnums)) {
+                Exit();
+            }
             screen.Update(gameTime);
             cam.Update(gameTime);
 

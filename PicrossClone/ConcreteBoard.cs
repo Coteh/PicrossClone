@@ -13,18 +13,26 @@ namespace PicrossClone {
     public class ConcreteBoard : Board {
         protected int[,] board;
         protected float scale = 1.0f;
-        protected int tileWidth = 16, tileHeight = 16;
+        protected int tileWidth = 16, tileHeight = 16, gridWidth = 16, gridHeight = 16;
         protected Rectangle[,] tilesRectArr;
         protected Color[] colorArr;
 
-        protected Point currMousePoint, prevHighlightedPoint, prevClickedPoint;
-        protected bool isMouseHeld;
-
+        /// <summary>
+        /// Gets tile type of tile at (X, Y)
+        /// </summary>
+        /// <param name="_xIndex">X coord of grid tile</param>
+        /// <param name="_yIndex">Y coord of grid tile</param>
+        /// <returns>Tile type as int.</returns>
         public int getTileType(int _xIndex, int _yIndex) {
             if (!isInBounds(_xIndex, _yIndex)) return -1;
             return board[_xIndex, _yIndex];
         }
 
+        /// <summary>
+        /// Gets the grid point relative to mouse coords.
+        /// </summary>
+        /// <param name="_mousePos">Mouse position in Vector2 format.</param>
+        /// <returns>Grid Point relative to mouse position.</returns>
         public Point getMouseToGridCoords(Vector2 _mousePos) {
             Vector2 mousePosRelative = _mousePos;
             Point gridPoint;
@@ -33,21 +41,13 @@ namespace PicrossClone {
             return gridPoint;
         }
 
-        public Point getPrevHighlightedPoint() {
-            return prevHighlightedPoint;
-        }
-
-        public void setPrevHighlightedCoords(int _xIndex, int _yIndex) {
-            prevHighlightedPoint.X = _xIndex;
-            prevHighlightedPoint.Y = _yIndex;
-        }
-
         public ConcreteBoard(int _gridWidth, int _gridHeight)
             : base() {
-            board = new int[_gridWidth, _gridHeight];
+            gridWidth = _gridWidth;
+            gridHeight = _gridHeight;
+            Clear();
             colorArr = new Color[] { Color.White, Color.Black, Color.LightGray, Color.Yellow };
             CalibrateRects();
-            clearPrevClickPoint(); //more liek initalize the point
         }
 
         protected void CalibrateRects() {
@@ -59,8 +59,9 @@ namespace PicrossClone {
             }
         }
 
-        private void clearPrevClickPoint() {
-            prevClickedPoint = new Point(-1, -1);
+        public void Clear() {
+            board = new int[gridWidth, gridHeight];
+            CalibrateRects();
         }
 
         /// <summary>
@@ -76,50 +77,9 @@ namespace PicrossClone {
             }
         }
 
-        public override void Select(InputEventState _selectState) {
-            if (currMousePoint == prevClickedPoint) {
-                return;
-            }
-            OnSelect(new InputEventArgs(_selectState));
-            prevClickedPoint = currMousePoint;
-        }
-
-        public override void Highlight() {
-            OnHighlight(EventArgs.Empty);
-        }
-
-        public override void Select_Release() {
-            clearPrevClickPoint(); //empty out prev clicked point
-            OnSelectRelease(EventArgs.Empty);
-        }
-
         public bool isInBounds(int _xIndex, int _yIndex) {
             return (_xIndex >= 0 && _xIndex < board.GetLength(0)
                 && _yIndex >= 0 && _yIndex < board.GetLength(1));
-        }
-
-        public void UpdateMousePoint(Point _mouseGridPoint) {
-            //Assigning the mouse point to passed in point
-            currMousePoint = _mouseGridPoint;
-            //Check conditions for Highlight function
-            if (isInBounds(_mouseGridPoint.X, _mouseGridPoint.Y)) {
-                Highlight();
-            }
-        }
-
-        public void UpdateInput(InputEventState _inputState) {
-            //Checking if selected
-            if (_inputState != InputEventState.NONE) {
-                isMouseHeld = true;
-                //Select function
-                Select(_inputState);
-            } else {
-                if (isMouseHeld) {
-                    Select_Release();
-                    isMouseHeld = false;
-                    //Console.WriteLine("Mouse released");
-                }
-            }
         }
 
         public override void Update(GameTime _gameTime) {

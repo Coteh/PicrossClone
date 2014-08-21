@@ -7,6 +7,6 @@ using System.Text;
 namespace PicrossClone {
     public class Assets {
         public static Texture2D pixel;
-        public static SpriteFont font;
+        //public static SpriteFont font;
     }
 }

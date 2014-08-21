@@ -31,9 +31,8 @@ namespace PicrossClone {
             tileCounter = new BoardTileCounter(puzzle.puzzle);
             countPuzzle();
             board = new GameBoard(puzzle.puzzle.GetLength(0), puzzle.puzzle.GetLength(1));
-            board.OnSelectEvent += new EventHandler(OnSelect);
-            board.OnHighlightEvent += new EventHandler(OnHighlight);
-            board.OnSelectReleaseEvent += new EventHandler(OnSelectRelease);
+            CreateMenus();
+            ToggleBoardVisibility(true);
         }
 
         private bool checkIfWithinPuzzleConstraints(Point _gridPoint) {
@@ -72,6 +71,7 @@ namespace PicrossClone {
         }
 
         protected override void LeftSelect() {
+            base.LeftSelect();
             placeTile();
         }
 
@@ -79,16 +79,8 @@ namespace PicrossClone {
             rightClickTile();
         }
 
-        protected override void OnSelect(object _sender, EventArgs _e) {
-            base.OnSelect(_sender, _e);
-            InputEventArgs mouseE = ((InputEventArgs)_e);
-            inputActionsDelegate(mouseE.InputState);
-        }
-
-        protected override void OnSelectRelease(object _sender, EventArgs _e) {
-            base.OnSelectRelease(_sender, _e);
+        protected override void SelectRelease() {
             tilePlacementMode = TilePlacementMode.None;
-            Console.WriteLine("Select released!");
         }
 
         private void placeTile() {
