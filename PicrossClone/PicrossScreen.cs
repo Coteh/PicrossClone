@@ -38,7 +38,7 @@ namespace PicrossClone {
         bool isGoingToExit;
 
         //Font set used for the game
-        FontHolder gameFont;
+        protected FontHolder gameFont;
 
         private Point lastLeftClickedPoint, lastRightClickedPoint, prevHighlightedPoint;
         private float selectDelay;
@@ -46,14 +46,11 @@ namespace PicrossClone {
 
         //Delegate methods
         public delegate void DrawCalls(SpriteBatch _spriteBatch);
-        private DrawCalls drawCalls;
+        protected DrawCalls drawCalls;
         public delegate void UpdateCalls(GameTime _gameTime);
         private UpdateCalls updateCalls;
         private delegate void LeftSelectActions();
         private LeftSelectActions leftSelectActions;
-
-        //SUPER TEMP
-        int amountOfLeftClicks;
 
         public PicrossScreen()
             : base() {
@@ -92,8 +89,7 @@ namespace PicrossClone {
             pauseMenu = new Menu();
             pauseMenu.SetPosition(new Vector2(200));
             pauseMenu.SetTitle("PAUSED");
-            MenuButton resumeBtn = new MenuButton();
-            MenuButton exitBtn = new MenuButton();
+            MenuButton resumeBtn, exitBtn;
             exitBtn.name = "Exit";
             exitBtn.menuAction = ExitGame;
             resumeBtn.name = "Resume";
@@ -144,9 +140,7 @@ namespace PicrossClone {
             }
         }
 
-        protected virtual void LeftSelect() {
-            Console.WriteLine("Left select " + amountOfLeftClicks);
-        }
+        protected virtual void LeftSelect() { }
 
         protected virtual void RightSelect() { }
 
@@ -156,7 +150,7 @@ namespace PicrossClone {
         /// Pauses the game if it isn't paused.
         /// Unpauses the game if it is paused.
         /// </summary>
-        protected void Pause() {
+        protected virtual void Pause() {
             isPaused = !isPaused;
             if (isPaused) {
                 UnhighlightPoint();
@@ -250,7 +244,6 @@ namespace PicrossClone {
             }
             //If left select OR left held and mouse is in new grid point (to avoid duplicate clicks)
             if (selectState.Has(SelectState.LEFT_SELECT) || (selectState.Has(SelectState.LEFT_HOLD) && lastLeftClickedPoint != mouseGridPoint)) {
-                amountOfLeftClicks++;
                 if (leftSelectActions != null) leftSelectActions();
                 lastLeftClickedPoint = mouseGridPoint;
             }
@@ -264,6 +257,14 @@ namespace PicrossClone {
                 SelectRelease();
             }
             return isExit;
+        }
+
+        protected override void EscapeHandle() {
+            if (isPaused) {
+                isGoingToExit = true;
+            } else {
+                Pause();
+            }
         }
 
         private void ExitGame() {

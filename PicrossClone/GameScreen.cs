@@ -15,8 +15,12 @@ namespace PicrossClone {
         PuzzleData puzzle;
 
         //Player variables
-        const int STARTING_LIVES = 3;
-        int lives = STARTING_LIVES;
+        private enum PlayerState { Alive, Dead, Win }
+        PlayerState playerState;
+
+        //Time variables
+        TimeKeeper timeKeeper;
+        GameTimeTicker timeTicker;
 
         //Misc variables
         private enum TilePlacementMode { None, Place, Mark, Erase }
@@ -31,8 +35,14 @@ namespace PicrossClone {
             tileCounter = new BoardTileCounter(puzzle.puzzle);
             countPuzzle();
             board = new GameBoard(puzzle.puzzle.GetLength(0), puzzle.puzzle.GetLength(1));
+            timeKeeper = new TimeKeeper(1,0);
+            timeTicker = new GameTimeTicker();
+            timeTicker.SetTimeKeeper(timeKeeper);
+            timeTicker.SetIncrement(-1);
+            timeTicker.SetEnabled(true);
             CreateMenus();
             ToggleBoardVisibility(true);
+            drawCalls += GameScreenRunningDraw;
         }
 
         private bool checkIfWithinPuzzleConstraints(Point _gridPoint) {
@@ -83,12 +93,23 @@ namespace PicrossClone {
             tilePlacementMode = TilePlacementMode.None;
         }
 
+        protected override void Pause(){
+            base.Pause();
+            if (isPaused) {
+                drawCalls -= GameScreenRunningDraw;
+            } else {
+                drawCalls += GameScreenRunningDraw;
+            }
+        }
+
         private void placeTile() {
             //Checking if corresponding tile on the puzzle int array is a correct piece
             if (checkIfWithinPuzzleConstraints(mouseGridPoint)) {
                 if (puzzle.puzzle[mouseGridPoint.X, mouseGridPoint.Y] != 1) {
-                    lives--;
-                    Console.WriteLine("James put time loss here");
+                    if (playerState == PlayerState.Alive) {
+                        timeKeeper.AddTime(-20); //taking away time for guessing incorrectly
+                        CheckForGameOver();
+                    }
                     return;
                 }
             } else {
@@ -96,7 +117,10 @@ namespace PicrossClone {
             }
             //At this point, the tile is correct and we will make it black.
             board.ChangeTileColor(mouseGridPoint.X, mouseGridPoint.Y, 1);
-            if (checkForCompletion()) {
+            //Checking for Win Condition (All the correct puzzle tiles are filled in)
+            if (playerState == PlayerState.Alive && checkForCompletion()) {
+                playerState = PlayerState.Win;
+                timeTicker.SetEnabled(false);
                 Console.WriteLine("We got a winner!");
             }
         }
@@ -134,6 +158,23 @@ namespace PicrossClone {
                 default:
                     break;
             }
+        }
+
+        private void CheckForGameOver() {
+            if (playerState == PlayerState.Alive && timeKeeper.Minutes <= 0 && timeKeeper.Seconds <= 0) {
+                Console.WriteLine("Game over.");
+                playerState = PlayerState.Dead;
+            }
+        }
+
+        public override void Update(GameTime _gameTime) {
+            base.Update(_gameTime);
+            CheckForGameOver();
+            timeTicker.Update(_gameTime);
+        }
+
+        private void GameScreenRunningDraw(SpriteBatch _spriteBatch) {
+            timeKeeper.Draw(_spriteBatch, gameFont.BodyFont, new Vector2(300, 100));
         }
     }
 }

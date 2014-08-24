@@ -44,7 +44,7 @@ namespace PicrossClone {
             Assets.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Assets.pixel.SetData(new[] { Color.White });
 
-            screen = new PaintScreen();
+            screen = new GameScreen();
 
             cam = new Camera2D();
             cam.Position = new Vector2(-200, -100);
@@ -79,9 +79,6 @@ namespace PicrossClone {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
-            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            //    if (screenState == ScreenState.SplashMenu) Exit();
-
             inputHelper.Update();
             inputManager.Update(gameTime);
             screen.UpdateMouse(inputManager.MousePosition);

@@ -52,9 +52,13 @@ namespace GameClasses {
             selectState = (SelectState)_inputState[2];
             miscInputs = (MiscInputs)_inputState[3];
             if (miscInputs.Has(MiscInputs.ESCAPE)) {
-                isExit = true;
+                EscapeHandle();
             }
             return isExit;
+        }
+
+        protected virtual void EscapeHandle() {
+            isExit = true;
         }
 
         /// <summary>

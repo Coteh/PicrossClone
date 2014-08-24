@@ -45,7 +45,9 @@
     <Compile Include="CountDisplay.cs" />
     <Compile Include="Extenders.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="GameTimeTicker.cs" />
     <Compile Include="ITileCounter.cs" />
+    <Compile Include="ITimeTicker.cs" />
     <Compile Include="PaintBoard.cs" />
     <Compile Include="GameBoard.cs" />
     <Compile Include="GameScreen.cs" />
@@ -56,6 +58,8 @@
     <Compile Include="PuzzleData.cs" />
     <Compile Include="PuzzleLoader.cs" />
     <Compile Include="PuzzleSaver.cs" />
+    <Compile Include="TimeKeeper.cs" />
+    <Compile Include="TitleScreen.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">
