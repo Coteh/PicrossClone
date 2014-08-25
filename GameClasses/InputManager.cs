@@ -58,6 +58,7 @@ namespace GameClasses {
         }
 
         public void Update(GameTime _gameTime) {
+            inputHelper.Update();
             inputState = InputState.NONE;
             controlInputs = ControlInputs.NONE;
             selectState = SelectState.NONE;

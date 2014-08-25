@@ -8,9 +8,6 @@ using GameClasses;
 
 namespace PicrossClone {
     public class GameScreen : PicrossScreen {
-        //General Game Objects
-        PuzzleLoader puzzleLoader;
-
         //Puzzle to solve
         PuzzleData puzzle;
 
@@ -22,6 +19,10 @@ namespace PicrossClone {
         TimeKeeper timeKeeper;
         GameTimeTicker timeTicker;
 
+        //File IO variables
+        PuzzleLoader pzLoader;
+        System.Windows.Forms.OpenFileDialog fileOpener;
+
         //Misc variables
         private enum TilePlacementMode { None, Place, Mark, Erase }
         private TilePlacementMode tilePlacementMode = TilePlacementMode.None;
@@ -30,17 +31,28 @@ namespace PicrossClone {
         }
 
         public override void Initalize() {
-            puzzleLoader = new PuzzleLoader();
-            puzzle = puzzleLoader.loadPuzzle(@"Content/levels/puzzle_test.pic");
+            pzLoader = new PuzzleLoader();
+            fileOpener = new System.Windows.Forms.OpenFileDialog();
+            CreateMenus();
+        }
+
+        public override void Start() {
+            fileOpener.Filter = "PicrossClone Puzzle|*.pic";
+            fileOpener.Title = "Open puzzle";
+            fileOpener.InitialDirectory = System.IO.Path.GetPathRoot(Environment.SystemDirectory);
+            if (fileOpener.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+                puzzle = pzLoader.loadPuzzle(fileOpener.FileName);
+            } else {
+                puzzle = pzLoader.loadPuzzle(@"Content/levels/puzzle_test.pic");
+            }
             tileCounter = new BoardTileCounter(puzzle.puzzle);
             countPuzzle();
             board = new GameBoard(puzzle.puzzle.GetLength(0), puzzle.puzzle.GetLength(1));
-            timeKeeper = new TimeKeeper(1,0);
+            timeKeeper = new TimeKeeper(1, 0);
             timeTicker = new GameTimeTicker();
             timeTicker.SetTimeKeeper(timeKeeper);
             timeTicker.SetIncrement(-1);
             timeTicker.SetEnabled(true);
-            CreateMenus();
             ToggleBoardVisibility(true);
             drawCalls += GameScreenRunningDraw;
         }

@@ -19,10 +19,16 @@ namespace PicrossClone {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        InputHelper inputHelper; //this is moving into input manager. remove this once everything input-related inside board is gone
         InputManager inputManager;
 
-        Screen screen;
+        //Screen Manager
+        ScreenManager screenManager;
+        //All the screens in the game
+        int titleScreen;
+        int gameScreen;
+        int createScreen;
+        //Refers to the current screen being accessed
+        Screen currScreen;
 
         Camera2D cam;
 
@@ -39,16 +45,26 @@ namespace PicrossClone {
         /// and initialize them as well.
         /// </summary>
         protected override void Initialize() {
-            inputHelper = InputHelper.Instance;
             inputManager = new InputManager();
             Assets.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Assets.pixel.SetData(new[] { Color.White });
 
-            screen = new GameScreen();
+            screenManager = new ScreenManager();
+            titleScreen = screenManager.AddScreen(new TitleScreen());
+            gameScreen = screenManager.AddScreen(new GameScreen());
+            createScreen = screenManager.AddScreen(new PaintScreen());
+            currScreen = screenManager.ChangeScreen(createScreen);
 
             cam = new Camera2D();
             cam.Position = new Vector2(-200, -100);
-            screen.setCamera(cam);
+            currScreen.setCamera(cam);
+
+            //MenuButton playBtn, makeBtn;
+            //playBtn.name = "Play";
+            //playBtn.menuAction = PlayGame;
+            //makeBtn.name = "Make";
+            //makeBtn.menuAction = MakePuzzle;
+            //((TitleScreen)currScreen).AssignTitleMenuButtons(new MenuButton[] { playBtn, makeBtn });
 
             base.Initialize();
         }
@@ -62,7 +78,7 @@ namespace PicrossClone {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             //Now the screen will have a LoadContent method for
             //loading in fonts and such
-            screen.LoadContent(Content);
+            currScreen.LoadContent(Content);
         }
 
         /// <summary>
@@ -73,19 +89,26 @@ namespace PicrossClone {
             // TODO: Unload any non ContentManager content here
         }
 
+        private void PlayGame() {
+            screenManager.ChangeScreen(1);
+        }
+
+        private void MakePuzzle() {
+            screenManager.ChangeScreen(2);
+        }
+
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
-            inputHelper.Update();
             inputManager.Update(gameTime);
-            screen.UpdateMouse(inputManager.MousePosition);
-            if (screen.UpdateInput(inputManager.InputEnums)) {
+            currScreen.UpdateMouse(inputManager.MousePosition);
+            if (currScreen.UpdateInput(inputManager.InputEnums)) {
                 Exit();
             }
-            screen.Update(gameTime);
+            currScreen.Update(gameTime);
             cam.Update(gameTime);
 
             base.Update(gameTime);
@@ -99,7 +122,7 @@ namespace PicrossClone {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, cam.Transform);
-            screen.Draw(spriteBatch);
+            currScreen.Draw(spriteBatch);
             spriteBatch.End();
 
             base.Draw(gameTime);

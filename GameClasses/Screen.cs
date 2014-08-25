@@ -14,6 +14,9 @@ namespace GameClasses {
         public virtual void Initalize() {
             
         }
+        public virtual void Start() {
+
+        }
         public abstract void setCamera(Camera2D _cam);
         public abstract void LoadContent(ContentManager _contentManager);
         public abstract void Update(GameTime _gameTime);
