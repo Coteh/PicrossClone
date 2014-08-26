@@ -64,20 +64,23 @@ namespace PicrossClone {
 
         private void countPuzzle() {
             //Figuring out the width and height of puzzle board
-            int totalTilesHorizontal = puzzle.puzzle.GetLength(0);
-            int totalTilesVertical = puzzle.puzzle.GetLength(1);
+            //The total amount of columns is equal to the length of the board horizontally
+            int totalColumnAmount = puzzle.puzzle.GetLength(0);
+            //Likewise, the total amount of rows is equal to the length of the board vertically
+            int totalRowAmount = puzzle.puzzle.GetLength(1);
             //Initalizing string array we will be using to store count strings
-            CountData[] countDataArr = new CountData[totalTilesHorizontal + totalTilesVertical];
-            //Count horizontally
-            for (int i = 0; i < totalTilesHorizontal; i++) {
+            CountData[] countDataArr = new CountData[totalColumnAmount + totalRowAmount];
+            //Count horizontally (by going through every row)
+            for (int i = 0; i < totalRowAmount; i++) {
                 countDataArr[i] = tileCounter.countRow(i);
             }
-            //Count vertically
-            for (int i = 0; i < totalTilesVertical; i++) {
-                countDataArr[i + totalTilesHorizontal] = tileCounter.countCol(i);
+            //Count vertically (by going through every column)
+            for (int i = 0; i < totalColumnAmount; i++) {
+                countDataArr[i + totalRowAmount] = tileCounter.countCol(i);
             }
             //Create new CountDisplay object and throw the string array into it along with width and height of the puzzle board
-            countDisplay = new CountDisplay(totalTilesHorizontal, totalTilesVertical, countDataArr);
+            countDisplay = new CountDisplay();
+            countDisplay.setData(totalColumnAmount, totalRowAmount, countDataArr);
             countDisplay.SetPositions(new Vector2(-16, 10), new Vector2(6, -8));
         }
 

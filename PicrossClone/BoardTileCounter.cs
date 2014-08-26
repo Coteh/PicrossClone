@@ -11,10 +11,7 @@ namespace PicrossClone {
         int[] currCountedArr;
         int currCountedCursor = 0; //curses through the above int array
 
-        private enum CountAlignment{
-            Horizontal = 0,
-            Vertical = 1
-        }
+        private enum CountAlignment{Horizontal, Vertical}
 
         public BoardTileCounter(int[,] _board) {
             board = _board;
@@ -25,31 +22,45 @@ namespace PicrossClone {
         }
 
         public CountData countRow(int _row) {
-            return count(boardWidth, CountAlignment.Horizontal, _row);
+            return count(CountAlignment.Horizontal, _row);
         }
         public CountData countCol(int _col) {
-            return count(boardWidth, CountAlignment.Vertical, _col);
+            return count(CountAlignment.Vertical, _col);
         }
-        private CountData count(int _length, CountAlignment _alignment, int _disposition) {
+
+        /// <summary>
+        /// Counts the specified row or column and returns the sequences that occur
+        /// in that row/column.
+        /// </summary>
+        /// <param name="_alignment">The alignment that is being used. (Vertical or Horizontal)</param>
+        /// <param name="_disposition">The current row/column being counted.</param>
+        /// <returns></returns>
+        private CountData count(CountAlignment _alignment, int _disposition) {
             CountData countData;
             currCountedCursor = 0;
             //Declaring local variables to use
-            int useHorizontal = 0, useVertical = 0, countAmount = 0, prevCounted = 0;
+            int useHorizontal = 0, useVertical = 0, countAmount = 0, prevCounted = 0, length = 0;
             //Setting up for appropriate alignment
             switch (_alignment) {
                 case CountAlignment.Vertical:
-                    currCountedArr = new int[boardHeight / 2];
+                    length = boardHeight;
+                    currCountedArr = new int[(int)Math.Ceiling(boardHeight / 2.0d)];
                     useVertical = 1;
                     break;
                 case CountAlignment.Horizontal:
                 default:
-                    currCountedArr = new int[boardWidth / 2];
+                    length = boardWidth;
+                    currCountedArr = new int[(int)Math.Ceiling(boardWidth / 2.0d)];
                     useHorizontal = 1;
                     break;
             }
             //Loop through each value of the row/column
-            for (int i = 0; i <= _length; i++) {
-                int counted = (i < _length) ? board[(useVertical * _disposition) + (useHorizontal * i), (useHorizontal * _disposition) + (useVertical * i)] : 0;
+            for (int i = 0; i <= length; i++) {
+                /* During Vertical count, we are counting length amount of columns, 
+                 * so board[,] is accessed like this when looping: board[_disposition, i] */
+                /* During Horizontal count, we are counting length amount of rows, 
+                 * so board[,] is accessed like this when looping: board[i, _disposition] */
+                int counted = (i < length) ? board[(useVertical * _disposition) + (useHorizontal * i), (useHorizontal * _disposition) + (useVertical * i)] : 0;
                 if (counted != 0) {
                     countAmount++;
                 } else if (counted != prevCounted) {

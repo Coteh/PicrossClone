@@ -64,6 +64,24 @@ namespace PicrossClone {
             CalibrateRects();
         }
 
+        public void RecalibrateBoard() {
+            int[,] newBoard = new int[gridWidth, gridHeight];
+            int oldWidth = board.GetLength(0), oldHeight = board.GetLength(1);
+            //Copying board values into new version of board (adding 0s where indexes exceed original length)
+            for (int i = 0; i < gridWidth; i++) {
+                for (int j = 0; j < gridHeight; j++) {
+                    newBoard[i, j] = (i < oldWidth && j < oldHeight) ? board[i, j] : 0;
+                }
+            }
+            Clear(); //clear out board and calibrate the rects
+            //Copying original board values back into the board
+            for (int i = 0; i < gridWidth; i++) {
+                for (int j = 0; j < gridHeight; j++) {
+                    board[i, j] = (i < gridWidth && j < gridHeight) ? newBoard[i, j] : 0;
+                }
+            }
+        }
+
         /// <summary>
         /// Change Tile Color by supplying the x and y indexes of the tile
         /// and then the color that is desired.

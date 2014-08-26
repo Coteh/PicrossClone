@@ -58,10 +58,10 @@ namespace PicrossClone {
         }
 
         public override void Initalize() {
+            //This Initalize only happens if this class is initalized directly, rather than a subclass
             int boardWidth = 20, boardHeight = 20;
             board = new ConcreteBoard(boardWidth, boardHeight);
             CreateMenus();
-            //temporary
             int[,] fakeBoard = new int[boardWidth, boardHeight];
             tileCounter = new BoardTileCounter(fakeBoard);
             CountData[] countDataArr = new CountData[boardWidth + boardHeight];
@@ -71,7 +71,8 @@ namespace PicrossClone {
             for (int i = 0; i < boardHeight; i++) {
                 countDataArr[boardWidth + i] = tileCounter.countRow(i);
             }
-            countDisplay = new CountDisplay(boardWidth, boardHeight, countDataArr);
+            countDisplay = new CountDisplay();
+            countDisplay.setData(boardWidth, boardHeight, countDataArr);
             countDisplay.SetPositions(new Vector2(-16, 10), new Vector2(6, -8));
             ToggleBoardVisibility(true);
         }

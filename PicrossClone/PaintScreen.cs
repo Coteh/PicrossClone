@@ -16,6 +16,7 @@ namespace PicrossClone {
 
         //Count stuff
         CountData[] countDataArr;
+        CountData blankCount;
 
         //temp
         PuzzleSaver pzSaver;
@@ -25,6 +26,10 @@ namespace PicrossClone {
         }
 
         public override void Initalize() {
+            
+        }
+
+        public override void Start() {
             boardHeight = 16;
             boardWidth = 16;
             puzzle = new PuzzleData();
@@ -32,6 +37,10 @@ namespace PicrossClone {
             puzzle.puzzle = new int[boardWidth, boardHeight];
             board = new PaintBoard(boardWidth, boardHeight);
             CreateMenus();
+            //Creating blank count
+            blankCount.countedData = new int[] { 0 };
+            blankCount.strCountedData = "0 ";
+            //Initalize the Count Display
             InitalizeCountDisplay();
             pzSaver = new PuzzleSaver();
             fileSaver = new System.Windows.Forms.SaveFileDialog();
@@ -45,33 +54,86 @@ namespace PicrossClone {
             for (int i = 0; i < boardWidth; i++) {
                 for (int j = 0; j < boardHeight; j++) {
                     if (tileCounter.Update(i, j, 0)) {
-                        calculatePoint(i, j);
+                        countPoint(i, j);
                     }
                 }
             }
         }
 
         private void adjustBoardSize(int _xMagnitude, int _yMagnitude) {
+            if (boardWidth + _xMagnitude < 2) return; //can't adjust the board horizontally less than this
+            if (boardHeight + _yMagnitude < 2) return; //can't adjust the board vertically less than this
             ((PaintBoard)board).AdjustBoard(_xMagnitude, _yMagnitude);
+            int[,] oldPuzzle = new int[boardWidth, boardHeight];
+            for (int i = 0; i < boardWidth; i++) {
+                for (int j = 0; j < boardHeight; j++) {
+                    oldPuzzle[i, j] = puzzle.puzzle[i, j];
+                }
+            }
+            int oldWidth = boardWidth, oldHeight = boardHeight;
             boardWidth += _xMagnitude;
             boardHeight += _yMagnitude;
-            InitalizeCountDisplay();
+            puzzle.puzzle = new int[boardWidth, boardHeight];
+            for (int i = 0; i < boardWidth; i++) {
+                for (int j = 0; j < boardHeight; j++) {
+                    puzzle.puzzle[i, j] = (i < oldWidth && j < oldHeight) ? oldPuzzle[i, j] : 0;
+                }
+            }
+            if (_xMagnitude < 0 || _yMagnitude < 0) { //if the board was shrunk
+                CountEverything(); //recount everything because some of the board blocks may have been lost
+            } else { //otherwise... just copy the count data over to a new count data array and fill in the new spots with 0s
+                //Create a new instance of tile counter, and put the current puzzle into it
+                tileCounter = new BoardTileCounter(puzzle.puzzle);
+                CountData[] newCountData = new CountData[boardWidth + boardHeight];
+                //Copy all row counts, putting in 0s for new areas
+                for (int i = 0; i < boardHeight; i++) {
+                    newCountData[i] = (i < oldHeight) ? countDataArr[i] : blankCount;
+                }
+                for (int i = 0; i < boardWidth; i++) {
+                    newCountData[i + boardHeight] = (i < oldWidth) ? countDataArr[i + oldHeight] : blankCount;
+                }
+                //Create new CountData[] instance for countDataArr and put all values from newCountData into it
+                countDataArr = new CountData[boardWidth + boardHeight];
+                for (int i = 0; i < countDataArr.Length; i++) {
+                    countDataArr[i] = newCountData[i];
+                }
+                //Set the data to the count display now
+                countDisplay.setData(boardWidth, boardHeight, countDataArr);
+            }
         }
 
         private void InitalizeCountDisplay() {
-            tileCounter = new BoardTileCounter(puzzle.puzzle);
-            countDataArr = new CountData[boardWidth + boardHeight];
-            for (int i = 0; i < boardWidth; i++) {
-                countDataArr[i] = tileCounter.countRow(i);
-            }
-            for (int i = 0; i < boardHeight; i++) {
-                countDataArr[boardWidth + i] = tileCounter.countRow(i);
-            }
-            countDisplay = new CountDisplay(boardWidth, boardHeight, countDataArr);
+            //Create new CountDisplay object
+            countDisplay = new CountDisplay();
+            //Set position of count display
             countDisplay.SetPositions(new Vector2(-16, 10), new Vector2(6, -8));
+            //Do the counting
+            CountEverything();
         }
 
-        private void calculatePoint(int _x, int _y) {
+        private void CountEverything() {
+            //Create a new instance of tile counter, and put the current puzzle into it
+            tileCounter = new BoardTileCounter(puzzle.puzzle);
+            //Figuring out the width and height of puzzle board
+            //The total amount of columns is equal to the length of the board horizontally
+            int totalColumnAmount = boardWidth;
+            //Likewise, the total amount of rows is equal to the length of the board vertically
+            int totalRowAmount = boardHeight;
+            //Initalizing string array we will be using to store count strings
+            countDataArr = new CountData[totalColumnAmount + totalRowAmount];
+            //Count horizontally (by going through every row)
+            for (int i = 0; i < totalRowAmount; i++) {
+                countDataArr[i] = tileCounter.countRow(i);
+            }
+            //Count vertically (by going through every column)
+            for (int i = 0; i < totalColumnAmount; i++) {
+                countDataArr[i + totalRowAmount] = tileCounter.countCol(i);
+            }
+            //Throw the string array into count display along with width and height of the puzzle board
+            countDisplay.setData(totalColumnAmount, totalRowAmount, countDataArr);
+        }
+
+        private void countPoint(int _x, int _y) {
             countDataArr[_y] = tileCounter.countRow(_y);
             countDataArr[boardHeight + _x] = tileCounter.countCol(_x);
         }
@@ -83,7 +145,7 @@ namespace PicrossClone {
             //the method will return true and then tile counter can go ahead and count the row and column
             //associated with this tile
             if (tileCounter.Update(mouseGridPoint.X, mouseGridPoint.Y, _value)) {
-                calculatePoint(mouseGridPoint.X, mouseGridPoint.Y);
+                countPoint(mouseGridPoint.X, mouseGridPoint.Y);
             }
         }
 

@@ -15,9 +15,11 @@ namespace PicrossClone {
         }
 
         public void AdjustBoard(int _xMagnitude, int _yMagnitude){
+            if (gridWidth + _xMagnitude < 0) return; //can't adjust the board horizontally less than this
+            if (gridHeight + _yMagnitude < 0) return; //can't adjust the board vertically less than this
             gridWidth += _xMagnitude;
             gridHeight += _yMagnitude;
-            Clear();
+            RecalibrateBoard();
         }
 
         public override void Update(GameTime _gameTime) {
