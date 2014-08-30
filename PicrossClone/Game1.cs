@@ -30,6 +30,11 @@ namespace PicrossClone {
         //Refers to the current screen being accessed
         Screen currScreen;
 
+        //Fonts used by the game
+        SpriteFont gameFont;
+        FontHolder gameFontHolder;
+
+        //Camera object
         Camera2D cam;
 
         public Game1()
@@ -53,18 +58,18 @@ namespace PicrossClone {
             titleScreen = screenManager.AddScreen(new TitleScreen());
             gameScreen = screenManager.AddScreen(new GameScreen());
             createScreen = screenManager.AddScreen(new PaintScreen());
-            currScreen = screenManager.ChangeScreen(createScreen);
+            currScreen = screenManager.ChangeScreen(titleScreen);
 
             cam = new Camera2D();
             cam.Position = new Vector2(-200, -100);
             currScreen.setCamera(cam);
 
-            //MenuButton playBtn, makeBtn;
-            //playBtn.name = "Play";
-            //playBtn.menuAction = PlayGame;
-            //makeBtn.name = "Make";
-            //makeBtn.menuAction = MakePuzzle;
-            //((TitleScreen)currScreen).AssignTitleMenuButtons(new MenuButton[] { playBtn, makeBtn });
+            MenuButton playBtn, makeBtn;
+            playBtn.name = "Play";
+            playBtn.menuAction = PlayGame;
+            makeBtn.name = "Make";
+            makeBtn.menuAction = MakePuzzle;
+            ((TitleScreen)currScreen).AssignTitleMenuButtons(new MenuButton[] { playBtn, makeBtn });
 
             base.Initialize();
         }
@@ -76,9 +81,15 @@ namespace PicrossClone {
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            //Now the screen will have a LoadContent method for
-            //loading in fonts and such
-            currScreen.LoadContent(Content);
+            // Load the fonts that will be used
+            gameFont = Content.Load<SpriteFont>(@"Fonts/ComicSans");
+            gameFontHolder = FontHolder.BuildFontHolder(gameFont, gameFont);
+            // Load in fonts into the current screen
+            LoadFontsToScreen();
+        }
+
+        private void LoadFontsToScreen() {
+            currScreen.LoadFonts(gameFontHolder);
         }
 
         /// <summary>
@@ -90,11 +101,17 @@ namespace PicrossClone {
         }
 
         private void PlayGame() {
-            screenManager.ChangeScreen(1);
+            currScreen = screenManager.ChangeScreen(gameScreen);
+            currScreen.setCamera(cam);
+            // Load in fonts into the current screen
+            LoadFontsToScreen();
         }
 
         private void MakePuzzle() {
-            screenManager.ChangeScreen(2);
+            currScreen = screenManager.ChangeScreen(createScreen);
+            currScreen.setCamera(cam);
+            // Load in fonts into the current screen
+            LoadFontsToScreen();
         }
 
         /// <summary>

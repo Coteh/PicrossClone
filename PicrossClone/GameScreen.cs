@@ -37,6 +37,7 @@ namespace PicrossClone {
         }
 
         public override void Start() {
+            base.Start();
             fileOpener.Filter = "PicrossClone Puzzle|*.pic";
             fileOpener.Title = "Open puzzle";
             fileOpener.InitialDirectory = System.IO.Path.GetPathRoot(Environment.SystemDirectory);

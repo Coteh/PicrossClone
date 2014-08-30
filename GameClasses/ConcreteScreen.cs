@@ -34,9 +34,9 @@ namespace GameClasses {
             camera = _cam;
         }
 
-        public override void LoadContent(ContentManager _contentManager) {
-            
-        }
+        public override void LoadContent(ContentManager _contentManager) { }
+
+        public override void LoadFonts(FontHolder _fontHolder) { }
 
         /// <summary>
         /// Updates the Game Screen.

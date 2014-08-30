@@ -51,6 +51,8 @@ namespace PicrossClone {
         private UpdateCalls updateCalls;
         private delegate void LeftSelectActions();
         private LeftSelectActions leftSelectActions;
+        private delegate void RightSelectActions();
+        private RightSelectActions rightSelectActions;
 
         public PicrossScreen()
             : base() {
@@ -79,9 +81,13 @@ namespace PicrossClone {
 
         public override void LoadContent(ContentManager _contentManager) {
             base.LoadContent(_contentManager);
-            SpriteFont fontToUse = _contentManager.Load<SpriteFont>(@"Fonts/ComicSans");
-            gameFont = FontHolder.BuildFontHolder(fontToUse, fontToUse);
-            countDisplay.SetFont(fontToUse);
+            //nothing here yet
+            //maybe take this out?
+        }
+
+        public override void LoadFonts(FontHolder _fontHolder) {
+            gameFont = _fontHolder;
+            countDisplay.SetFont(gameFont.BodyFont);
             pauseMenu.SetFonts(gameFont);
         }
 
@@ -98,6 +104,10 @@ namespace PicrossClone {
             pauseMenu.AddMultiple(new MenuButton[] { resumeBtn, exitBtn });
             //temp
             leftSelectActions += LeftSelect;
+            rightSelectActions += RightSelect;
+        }
+
+        public override void Start() {
         }
 
         protected void ToggleBoardVisibility(bool _expression) {
@@ -157,21 +167,18 @@ namespace PicrossClone {
                 UnhighlightPoint();
                 updateCalls += PauseUpdate;
                 drawCalls += pauseMenu.DrawMenu;
-                leftSelectActions += PauseLeftSelect;
                 leftSelectActions -= LeftSelect;
+                rightSelectActions -= RightSelect;
                 ToggleBoardVisibility(false);
             } else {
                 HighlightPoint();
                 updateCalls -= PauseUpdate;
                 drawCalls -= pauseMenu.DrawMenu;
-                leftSelectActions -= PauseLeftSelect;
+                leftSelectActions += LeftSelect;
+                rightSelectActions += RightSelect;
                 selectDelay = 0.001f;
                 ToggleBoardVisibility(true);
             }
-        }
-
-        private void PauseLeftSelect() {
-            pauseMenu.Select();
         }
 
         /// <summary>
@@ -199,7 +206,6 @@ namespace PicrossClone {
             if (selectDelay > 0) {
                 if (selectDelay >= MAX_SELECT_DELAY) {
                     selectDelay = 0;
-                    leftSelectActions += LeftSelect;
                 } else {
                     selectDelay += (float)_gameTime.ElapsedGameTime.TotalSeconds;
                 }
@@ -210,6 +216,7 @@ namespace PicrossClone {
         private void PauseUpdate(GameTime _gameTime) {
             //Updating pause menu
             pauseMenu.Update(mousePos + camera.Position, false, false);
+            if (selectState.Has(SelectState.LEFT_RELEASE)) pauseMenu.Select();
             if (inputState.Has(InputState.MOVE_UP)) {
                 pauseMenu.Move(1);
             } else if (inputState.Has(InputState.MOVE_DOWN)) {
@@ -250,7 +257,7 @@ namespace PicrossClone {
             }
             //If right select OR right held and mouse is in new grid point (to avoid duplicate clicks)
             if (selectState.Has(SelectState.RIGHT_SELECT) || (selectState.Has(SelectState.RIGHT_HOLD) && lastRightClickedPoint != mouseGridPoint)) {
-                RightSelect();
+                if (rightSelectActions != null) rightSelectActions();
                 lastRightClickedPoint = mouseGridPoint;
             }
             //If left or right released (to be split later)

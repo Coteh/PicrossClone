@@ -30,6 +30,7 @@ namespace PicrossClone {
         }
 
         public override void Start() {
+            base.Start();
             boardHeight = 16;
             boardWidth = 16;
             puzzle = new PuzzleData();
