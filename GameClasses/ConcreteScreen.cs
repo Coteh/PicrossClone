@@ -12,20 +12,26 @@ namespace GameClasses {
      * Screen behaviour that is shared by any game screen
      */
     public class ConcreteScreen : Screen {
+        //Camera interface object
         protected ICamera2D camera;
 
-        //temp
+        //Bool conditions
         protected bool isPaused;
+        protected bool isExit;
+
+        //Input Enums
         protected InputState inputState;
         protected ControlInputs controlInputs;
         protected SelectState selectState;
         protected MiscInputs miscInputs;
-        protected bool isExit;
 
+        #region Initalize Methods
         public ConcreteScreen() {
             Initalize();
         }
+        #endregion
 
+        #region Set Methods
         /// <summary>
         /// Setting the Screen's Camera2D object
         /// </summary>
@@ -33,10 +39,21 @@ namespace GameClasses {
         public override void setCamera(Camera2D _cam) {
             camera = _cam;
         }
+        #endregion
 
+        #region Loading Methods
         public override void LoadContent(ContentManager _contentManager) { }
 
         public override void LoadFonts(FontHolder _fontHolder) { }
+        #endregion
+
+        #region Handling Methods
+        protected virtual void EscapeHandle() {
+            isExit = true;
+        }
+        #endregion
+
+        #region Concrete Update
 
         /// <summary>
         /// Updates the Game Screen.
@@ -57,16 +74,25 @@ namespace GameClasses {
             return isExit;
         }
 
-        protected virtual void EscapeHandle() {
-            isExit = true;
-        }
+        #endregion
+
+        #region Concrete Draw
 
         /// <summary>
         /// Draws Game contents.
         /// </summary>
         /// <param name="_spriteBatch">Settings for drawing sprites.</param>
         public override void Draw(SpriteBatch _spriteBatch) {
-            
+
         }
+
+        #endregion
+
+        #region Concrete Unload Screen
+        public override void UnloadScreen() {
+            //Setting game as unpaused
+            isPaused = false;
+        }
+        #endregion
     }
 }

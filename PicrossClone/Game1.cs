@@ -114,6 +114,10 @@ namespace PicrossClone {
             LoadFontsToScreen();
         }
 
+        private void ReturnToTitleScreen() {
+            currScreen = screenManager.ChangeScreen(titleScreen);
+        }
+
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -123,7 +127,11 @@ namespace PicrossClone {
             inputManager.Update(gameTime);
             currScreen.UpdateMouse(inputManager.MousePosition);
             if (currScreen.UpdateInput(inputManager.InputEnums)) {
-                Exit();
+                if (screenManager.getCurrentScreenID() == titleScreen) {
+                    Exit();
+                } else {
+                    ReturnToTitleScreen();
+                }
             }
             currScreen.Update(gameTime);
             cam.Update(gameTime);

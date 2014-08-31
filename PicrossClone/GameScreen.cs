@@ -18,15 +18,23 @@ namespace PicrossClone {
         //Time variables
         TimeKeeper timeKeeper;
         GameTimeTicker timeTicker;
+        TimeKeeper endTimeKeeper;
+        GameTimeTicker endTimeTicker;
 
         //File IO variables
         PuzzleLoader pzLoader;
         System.Windows.Forms.OpenFileDialog fileOpener;
 
-        //Misc variables
+        //Tile Placement Mode enum
         private enum TilePlacementMode { None, Place, Mark, Erase }
         private TilePlacementMode tilePlacementMode = TilePlacementMode.None;
 
+        //Game Messages
+        private string currMessage;
+        private string winMessage = "You win!";
+        private string loseMessage = "Game over!";
+
+        #region Initalize Methods
         public GameScreen() : base(){
         }
 
@@ -37,32 +45,53 @@ namespace PicrossClone {
         }
 
         public override void Start() {
+            //Do base Picross Screen stuff
             base.Start();
+            //Setting player state to normal
+            playerState = PlayerState.Alive;
+            //Preparing file open sequence
             fileOpener.Filter = "PicrossClone Puzzle|*.pic";
             fileOpener.Title = "Open puzzle";
             fileOpener.InitialDirectory = System.IO.Path.GetPathRoot(Environment.SystemDirectory);
+            //Execute the file opener window
             if (fileOpener.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+                //Load specified puzzle if user presses OK
                 puzzle = pzLoader.loadPuzzle(fileOpener.FileName);
             } else {
+                //Load default puzzle
                 puzzle = pzLoader.loadPuzzle(@"Content/levels/puzzle_test.pic");
             }
+            //Create tileCounter object, place the newly loaded puzzle into it
             tileCounter = new BoardTileCounter(puzzle.puzzle);
+            //Use tileCounter to count all the rows and columns of the puzzle board, and return all data onto a count display object
             countPuzzle();
+            //Create the game board, a board that the user can manipulate
             board = new GameBoard(puzzle.puzzle.GetLength(0), puzzle.puzzle.GetLength(1));
+            //Initalize the timeKeeper object at specified time (first parameter is minutes and second parameter is seconds)
             timeKeeper = new TimeKeeper(1, 0);
+            //Initalize the timeTicker object, which will take in the timeKeeper and for every second of gameTime that passes, it will increment the time
             timeTicker = new GameTimeTicker();
             timeTicker.SetTimeKeeper(timeKeeper);
             timeTicker.SetIncrement(-1);
             timeTicker.SetEnabled(true);
+            //Make the board visisble to the player
             ToggleBoardVisibility(true);
+            //Add the GameScreen specific draws into the drawCalls delegate method
             drawCalls += GameScreenRunningDraw;
         }
 
-        private bool checkIfWithinPuzzleConstraints(Point _gridPoint) {
-            return (_gridPoint.X >= 0 && _gridPoint.X < puzzle.puzzle.GetLength(0)
-                && _gridPoint.Y >= 0 && _gridPoint.Y < puzzle.puzzle.GetLength(1));
+        private void SetUpEndTimer() {
+            //Initalize the end timer (keeper + ticker)
+            endTimeKeeper = new TimeKeeper(0, 5);
+            endTimeTicker = new GameTimeTicker();
+            //Set up the end time ticker to start counting down
+            endTimeTicker.SetIncrement(-1);
+            endTimeTicker.SetTimeKeeper(endTimeKeeper);
+            endTimeTicker.SetEnabled(true);
         }
+        #endregion
 
+        #region Counting Methods
         private void countPuzzle() {
             //Figuring out the width and height of puzzle board
             //The total amount of columns is equal to the length of the board horizontally
@@ -84,18 +113,9 @@ namespace PicrossClone {
             countDisplay.setData(totalColumnAmount, totalRowAmount, countDataArr);
             countDisplay.SetPositions(new Vector2(-16, 10), new Vector2(6, -8));
         }
+        #endregion
 
-        private bool checkForCompletion() {
-            for (int i = 0; i < puzzle.puzzle.GetLength(0); i++) {
-                for (int j = 0; j < puzzle.puzzle.GetLength(1); j++) {
-                    int puzzleTileColor = puzzle.puzzle[i, j];
-                    if (puzzleTileColor != 0) //don't check empty spots in the puzzle
-                        if (board.getTileType(i, j) != puzzleTileColor) return false;
-                }
-            }
-            return true;
-        }
-
+        #region Select Methods
         protected override void LeftSelect() {
             base.LeftSelect();
             placeTile();
@@ -108,7 +128,9 @@ namespace PicrossClone {
         protected override void SelectRelease() {
             tilePlacementMode = TilePlacementMode.None;
         }
+        #endregion
 
+        #region Actions
         protected override void Pause(){
             base.Pause();
             if (isPaused) {
@@ -117,6 +139,36 @@ namespace PicrossClone {
                 drawCalls += GameScreenRunningDraw;
             }
         }
+
+        private void WinAction() {
+            playerState = PlayerState.Win;
+            timeTicker.SetEnabled(false);
+            //We got a winner!
+            currMessage = winMessage;
+            //Add the end screen draw and remove the running draw and count display draw
+            drawCalls -= GameScreenRunningDraw;
+            drawCalls -= countDisplay.Draw;
+            drawCalls += GameScreenEndDraw;
+            //Setup the end timer (once it goes off, user will go back to the title screen)
+            SetUpEndTimer();
+        }
+
+        private void LoseAction() {
+            playerState = PlayerState.Dead;
+            timeTicker.SetEnabled(false);
+            //We got a loser!
+            currMessage = loseMessage;
+            //Add the end screen draw and remove the running draw, count display draw, AND board draw
+            drawCalls -= GameScreenRunningDraw;
+            drawCalls -= countDisplay.Draw;
+            drawCalls -= board.Draw;
+            drawCalls += GameScreenEndDraw;
+            //Setup the end timer (once it goes off, user will go back to the title screen)
+            SetUpEndTimer();
+        }
+        #endregion
+
+        #region Tile Modifying Methods
 
         private void placeTile() {
             //Checking if corresponding tile on the puzzle int array is a correct piece
@@ -135,9 +187,7 @@ namespace PicrossClone {
             board.ChangeTileColor(mouseGridPoint.X, mouseGridPoint.Y, 1);
             //Checking for Win Condition (All the correct puzzle tiles are filled in)
             if (playerState == PlayerState.Alive && checkForCompletion()) {
-                playerState = PlayerState.Win;
-                timeTicker.SetEnabled(false);
-                Console.WriteLine("We got a winner!");
+                WinAction();
             }
         }
 
@@ -175,22 +225,68 @@ namespace PicrossClone {
                     break;
             }
         }
+        #endregion
 
+        #region Check Conditions
+        private bool checkIfWithinPuzzleConstraints(Point _gridPoint) {
+            return (_gridPoint.X >= 0 && _gridPoint.X < puzzle.puzzle.GetLength(0)
+                && _gridPoint.Y >= 0 && _gridPoint.Y < puzzle.puzzle.GetLength(1));
+        }
+        private bool checkForCompletion() {
+            for (int i = 0; i < puzzle.puzzle.GetLength(0); i++) {
+                for (int j = 0; j < puzzle.puzzle.GetLength(1); j++) {
+                    int puzzleTileColor = puzzle.puzzle[i, j];
+                    if (puzzleTileColor != 0) //don't check empty spots in the puzzle
+                        if (board.getTileType(i, j) != puzzleTileColor) return false;
+                }
+            }
+            return true;
+        }
         private void CheckForGameOver() {
             if (playerState == PlayerState.Alive && timeKeeper.Minutes <= 0 && timeKeeper.Seconds <= 0) {
-                Console.WriteLine("Game over.");
-                playerState = PlayerState.Dead;
+                LoseAction();
             }
         }
+        private void CheckForTitleScreenReturn() {
+            if ((playerState == PlayerState.Win || playerState == PlayerState.Dead) && endTimeKeeper.Minutes <= 0 && endTimeKeeper.Seconds <= 0) {
+                isGoingToExit = true;
+            }
+        }
+        #endregion
 
+        #region Game Screen Updates
         public override void Update(GameTime _gameTime) {
             base.Update(_gameTime);
+            //Updating the Game Time Keeper
             CheckForGameOver();
             timeTicker.Update(_gameTime);
+            //Updating the End Time Keeper
+            CheckForTitleScreenReturn();
+            if (endTimeTicker != null) {
+                endTimeTicker.Update(_gameTime);
+            }
         }
+        #endregion
 
+        #region Game Screen Draws
         private void GameScreenRunningDraw(SpriteBatch _spriteBatch) {
             timeKeeper.Draw(_spriteBatch, gameFont.BodyFont, new Vector2(300, 100));
         }
+        private void GameScreenEndDraw(SpriteBatch _spriteBatch) {
+            _spriteBatch.DrawString(gameFont.BodyFont, currMessage, new Vector2(200,200), Color.Black);
+        }
+        #endregion
+
+        #region Game Screen Unload
+        public override void UnloadScreen() {
+            //Call base Unload first
+            base.UnloadScreen();
+            //Nullify the timers
+            timeKeeper = null;
+            timeTicker = null;
+            endTimeKeeper = null;
+            endTimeTicker = null;
+        }
+        #endregion
     }
 }

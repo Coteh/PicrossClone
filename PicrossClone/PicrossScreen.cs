@@ -35,7 +35,7 @@ namespace PicrossClone {
 
         //Pause Menu
         Menu pauseMenu;
-        bool isGoingToExit;
+        protected bool isGoingToExit;
 
         //Font set used for the game
         protected FontHolder gameFont;
@@ -102,12 +102,12 @@ namespace PicrossClone {
             resumeBtn.name = "Resume";
             resumeBtn.menuAction = Pause;
             pauseMenu.AddMultiple(new MenuButton[] { resumeBtn, exitBtn });
-            //temp
-            leftSelectActions += LeftSelect;
-            rightSelectActions += RightSelect;
         }
 
         public override void Start() {
+            //setting delegates for left and right selects
+            leftSelectActions += LeftSelect;
+            rightSelectActions += RightSelect;
         }
 
         protected void ToggleBoardVisibility(bool _expression) {
@@ -157,12 +157,7 @@ namespace PicrossClone {
 
         protected virtual void SelectRelease() { }
 
-        /// <summary>
-        /// Pauses the game if it isn't paused.
-        /// Unpauses the game if it is paused.
-        /// </summary>
-        protected virtual void Pause() {
-            isPaused = !isPaused;
+        private void PauseChecks() {
             if (isPaused) {
                 UnhighlightPoint();
                 updateCalls += PauseUpdate;
@@ -179,6 +174,15 @@ namespace PicrossClone {
                 selectDelay = 0.001f;
                 ToggleBoardVisibility(true);
             }
+        }
+
+        /// <summary>
+        /// Pauses the game if it isn't paused.
+        /// Unpauses the game if it is paused.
+        /// </summary>
+        protected virtual void Pause() {
+            isPaused = !isPaused;
+            PauseChecks();
         }
 
         /// <summary>
@@ -286,6 +290,18 @@ namespace PicrossClone {
         public override void Draw(SpriteBatch _spriteBatch) {
             base.Draw(_spriteBatch);
             if (drawCalls != null) drawCalls(_spriteBatch);
+        }
+
+        public override void UnloadScreen() {
+            //Run base unload methods
+            base.UnloadScreen();
+            //Run pause check, get rid of pause menu and such
+            PauseChecks();
+            //Nullify delegate methods
+            leftSelectActions = null;
+            rightSelectActions = null;
+            drawCalls = null;
+            updateCalls = null;
         }
     }
 }

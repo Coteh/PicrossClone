@@ -24,5 +24,6 @@ namespace GameClasses {
         public virtual void UpdateMouse(Vector2 _mousePos) { }
         public virtual bool UpdateInput(int[] _inputState) { return false; }
         public abstract void Draw(SpriteBatch _spriteBatch);
+        public abstract void UnloadScreen();
     }
 }

@@ -6,13 +6,18 @@ using System.Text;
 namespace GameClasses {
     public class ScreenManager {
         private List<Screen> screenList;
-        private int currScreen;
+        private int currScreen = -1;
 
         public ScreenManager() {
             screenList = new List<Screen>();
         }
 
+        public int getCurrentScreenID() {
+            return currScreen;
+        }
+
         public Screen ChangeScreen(int _screenID) {
+            if (currScreen >= 0) screenList[currScreen].UnloadScreen(); //unload the current screen's contents
             currScreen = _screenID;
             screenList[currScreen].Start();
             return screenList[currScreen];

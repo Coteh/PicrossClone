@@ -8,7 +8,8 @@ using GameClasses;
 
 namespace PicrossClone {
     /* Concrete Board
-     * Board behaviours that all boards have in common
+     * Stores basic board information
+     * Contains various publicly accessible methods that help retrieve/set information from/to the board
      */
     public class ConcreteBoard : Board {
         protected int[,] board;
