@@ -50,9 +50,12 @@ namespace PicrossClone {
         /// and initialize them as well.
         /// </summary>
         protected override void Initialize() {
+            //Initalizing Input Manager
             inputManager = new InputManager();
+            //Initalizing static assets
             Assets.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Assets.pixel.SetData(new[] { Color.White });
+            Assets.levelFilePath = System.Windows.Forms.Application.StartupPath + "\\" + Content.RootDirectory + "\\" + "levels";
 
             screenManager = new ScreenManager();
             titleScreen = screenManager.AddScreen(new TitleScreen());
@@ -64,12 +67,17 @@ namespace PicrossClone {
             cam.Position = new Vector2(-200, -100);
             currScreen.setCamera(cam);
 
-            MenuButton playBtn, makeBtn;
+            MenuButton playBtn, makeBtn, makeNewBtn, makeLoadBtn;
             playBtn.name = "Play";
             playBtn.menuAction = PlayGame;
             makeBtn.name = "Make";
-            makeBtn.menuAction = MakePuzzle;
+            makeBtn.menuAction = ((TitleScreen)currScreen).SwitchToMakeMenu;
+            makeNewBtn.name = "Start a new puzzle";
+            makeNewBtn.menuAction = MakePuzzle;
+            makeLoadBtn.name = "Load a puzzle";
+            makeLoadBtn.menuAction = LoadPuzzleToMake;
             ((TitleScreen)currScreen).AssignTitleMenuButtons(new MenuButton[] { playBtn, makeBtn });
+            ((TitleScreen)currScreen).AssignMakeMenuButtons(new MenuButton[] { makeNewBtn, makeLoadBtn });
 
             base.Initialize();
         }
@@ -112,6 +120,11 @@ namespace PicrossClone {
             currScreen.setCamera(cam);
             // Load in fonts into the current screen
             LoadFontsToScreen();
+        }
+
+        private void LoadPuzzleToMake() {
+            MakePuzzle();
+            ((PaintScreen)currScreen).LoadPuzzle();
         }
 
         private void ReturnToTitleScreen() {

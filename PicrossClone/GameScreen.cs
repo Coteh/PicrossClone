@@ -52,7 +52,7 @@ namespace PicrossClone {
             //Preparing file open sequence
             fileOpener.Filter = "PicrossClone Puzzle|*.pic";
             fileOpener.Title = "Open puzzle";
-            fileOpener.InitialDirectory = System.IO.Path.GetPathRoot(Environment.SystemDirectory);
+            fileOpener.InitialDirectory = Assets.levelFilePath;
             //Execute the file opener window
             if (fileOpener.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
                 //Load specified puzzle if user presses OK
@@ -118,11 +118,11 @@ namespace PicrossClone {
         #region Select Methods
         protected override void LeftSelect() {
             base.LeftSelect();
-            placeTile();
+            if (playerState == PlayerState.Alive) placeTile();
         }
 
         protected override void RightSelect() {
-            rightClickTile();
+            if (playerState == PlayerState.Alive) rightClickTile();
         }
 
         protected override void SelectRelease() {

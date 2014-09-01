@@ -18,38 +18,69 @@ namespace PicrossClone {
         CountData[] countDataArr;
         CountData blankCount;
 
-        //temp
+        //Puzzle Saver
         PuzzleSaver pzSaver;
         System.Windows.Forms.SaveFileDialog fileSaver;
 
+        //Puzzle Loader
+        PuzzleLoader pzLoader;
+        System.Windows.Forms.OpenFileDialog fileOpener;
+
+        #region Constructor
         public PaintScreen() : base() {
         }
+        #endregion
 
+        #region Initalization
         public override void Initalize() {
-            
+            //Initalize the Puzzle Saver object
+            pzSaver = new PuzzleSaver();
+            fileSaver = new System.Windows.Forms.SaveFileDialog();
+            fileSaver.InitialDirectory = Assets.levelFilePath;
+            fileSaver.Filter = "PicrossClone Puzzle|*.pic";
+            fileSaver.Title = "Save puzzle";
+            //Initalize the Puzzle Opener object
+            pzLoader = new PuzzleLoader();
+            fileOpener = new System.Windows.Forms.OpenFileDialog();
+            fileOpener.InitialDirectory = Assets.levelFilePath;
+            fileOpener.Filter = "PicrossClone Puzzle|*.pic";
+            fileOpener.Title = "Open puzzle";
         }
 
+        private void InitalizeCountDisplay() {
+            //Create new CountDisplay object
+            countDisplay = new CountDisplay();
+            //Set position of count display
+            countDisplay.SetPositions(new Vector2(-16, 10), new Vector2(6, -8));
+            //Do the counting
+            CountEverything();
+        }
+        #endregion
+
+        #region Start
         public override void Start() {
+            //Base start
             base.Start();
+            //Initalize board and puzzle data
             boardHeight = 16;
             boardWidth = 16;
             puzzle = new PuzzleData();
             puzzle.name = "New Puzzle";
             puzzle.puzzle = new int[boardWidth, boardHeight];
             board = new PaintBoard(boardWidth, boardHeight);
+            //Create menus
             CreateMenus();
             //Creating blank count
             blankCount.countedData = new int[] { 0 };
             blankCount.strCountedData = "0 ";
             //Initalize the Count Display
             InitalizeCountDisplay();
-            pzSaver = new PuzzleSaver();
-            fileSaver = new System.Windows.Forms.SaveFileDialog();
-            fileSaver.Filter = "PicrossClone Puzzle|*.pic";
-            fileSaver.Title = "Save puzzle";
+            //Make board visible
             ToggleBoardVisibility(true);
         }
+        #endregion
 
+        #region Board Reset
         private void resetBoard() {
             board.Clear();
             for (int i = 0; i < boardWidth; i++) {
@@ -60,7 +91,9 @@ namespace PicrossClone {
                 }
             }
         }
+        #endregion
 
+        #region Board Adjustment
         private void adjustBoardSize(int _xMagnitude, int _yMagnitude) {
             if (boardWidth + _xMagnitude < 2) return; //can't adjust the board horizontally less than this
             if (boardHeight + _yMagnitude < 2) return; //can't adjust the board vertically less than this
@@ -102,16 +135,9 @@ namespace PicrossClone {
                 countDisplay.setData(boardWidth, boardHeight, countDataArr);
             }
         }
+        #endregion
 
-        private void InitalizeCountDisplay() {
-            //Create new CountDisplay object
-            countDisplay = new CountDisplay();
-            //Set position of count display
-            countDisplay.SetPositions(new Vector2(-16, 10), new Vector2(6, -8));
-            //Do the counting
-            CountEverything();
-        }
-
+        #region Counting
         private void CountEverything() {
             //Create a new instance of tile counter, and put the current puzzle into it
             tileCounter = new BoardTileCounter(puzzle.puzzle);
@@ -138,7 +164,9 @@ namespace PicrossClone {
             countDataArr[_y] = tileCounter.countRow(_y);
             countDataArr[boardHeight + _x] = tileCounter.countCol(_x);
         }
+        #endregion
 
+        #region Paint Tile
         private void paintTile(int _value) {
             //Change tile color to new value
             board.ChangeTileColor(mouseGridPoint.X, mouseGridPoint.Y, _value);
@@ -149,7 +177,9 @@ namespace PicrossClone {
                 countPoint(mouseGridPoint.X, mouseGridPoint.Y);
             }
         }
+        #endregion
 
+        #region Select
         protected override void LeftSelect() {
             base.LeftSelect();
             paintTile(1);
@@ -158,13 +188,39 @@ namespace PicrossClone {
         protected override void RightSelect() {
             paintTile(0);
         }
+        #endregion
 
+        public void LoadPuzzle() {
+            //Take in newly loaded puzzle data from file
+            if (fileOpener.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+                puzzle = pzLoader.loadPuzzle(fileOpener.FileName);
+            }
+            //capture old widths and heights
+            int oldWidth = boardWidth, oldHeight = boardHeight;
+            //set the board width and height to newly loaded puzzle's width and height
+            boardWidth = puzzle.puzzle.GetLength(0);
+            boardHeight = puzzle.puzzle.GetLength(1);
+            //create a fresh new board using the new dimensions
+            ((PaintBoard)board).AdjustBoard(boardWidth - oldWidth, boardHeight - oldHeight);
+            //fill in all the blocks that are filled in the puzzle
+            for (int i = 0; i < boardWidth; i++) {
+                for (int j = 0; j < boardHeight; j++) {
+                    if (puzzle.puzzle[i,j] == 1) board.ChangeTileColor(i, j, 1);
+                }
+            }
+            //Recount everything now
+            CountEverything();
+        }
+
+        #region Paint Screen Update
         public override bool UpdateInput(int[] _inputState) {
             base.UpdateInput(_inputState);
             if (controlInputs.Has(ControlInputs.SAVE)) {
                 if (fileSaver.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
                     pzSaver.savePuzzle(puzzle, fileSaver.FileName);
                 }
+            } else if (controlInputs.Has(ControlInputs.OPEN)){
+                LoadPuzzle();
             } else if (controlInputs.Has(ControlInputs.NEW)) {
                 resetBoard();
             }
@@ -182,5 +238,6 @@ namespace PicrossClone {
             }
             return isExit;
         }
+        #endregion
     }
 }
