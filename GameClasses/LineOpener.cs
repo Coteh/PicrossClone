@@ -18,6 +18,8 @@ namespace GameClasses {
                         lineList.Add(sr.ReadLine());
                     }
                 }
+            } catch (FileNotFoundException e) {
+                throw new FileNotFoundException("Puzzle map at " + _filePath + " cannot be found.", e);
             } catch (IOException) {
 
             } catch {

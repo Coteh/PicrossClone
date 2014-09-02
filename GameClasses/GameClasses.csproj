@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Camera2D.cs" />
     <Compile Include="ConcreteScreen.cs" />
+    <Compile Include="EmptyFileException.cs" />
     <Compile Include="Extenders.cs" />
     <Compile Include="FontHolder.cs" />
     <Compile Include="ICamera2D.cs" />

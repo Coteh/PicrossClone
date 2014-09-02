@@ -13,8 +13,9 @@ namespace GameClasses {
         public void saveAllLines(string _filePath, string[] _lines) {
             try {
                 File.WriteAllLines(_filePath, _lines);
-            } catch (IOException) {
+            } catch (IOException e) {
                 Console.WriteLine("ERROR: Couldn't save file due to IO error");
+                throw new IOException("Couldn't save file at " + _filePath + "due to IO error.", e);
             }
         }
     }

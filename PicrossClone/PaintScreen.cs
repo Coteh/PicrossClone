@@ -192,33 +192,42 @@ namespace PicrossClone {
 
         public void LoadPuzzle() {
             //Take in newly loaded puzzle data from file
-            if (fileOpener.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                puzzle = pzLoader.loadPuzzle(fileOpener.FileName);
-            }
-            //capture old widths and heights
-            int oldWidth = boardWidth, oldHeight = boardHeight;
-            //set the board width and height to newly loaded puzzle's width and height
-            boardWidth = puzzle.puzzle.GetLength(0);
-            boardHeight = puzzle.puzzle.GetLength(1);
-            //create a fresh new board using the new dimensions
-            ((PaintBoard)board).AdjustBoard(boardWidth - oldWidth, boardHeight - oldHeight);
-            //fill in all the blocks that are filled in the puzzle
-            for (int i = 0; i < boardWidth; i++) {
-                for (int j = 0; j < boardHeight; j++) {
-                    if (puzzle.puzzle[i,j] == 1) board.ChangeTileColor(i, j, 1);
+            try {
+                if (fileOpener.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+                    puzzle = pzLoader.loadPuzzle(fileOpener.FileName);
                 }
+                //capture old widths and heights
+                int oldWidth = boardWidth, oldHeight = boardHeight;
+                //set the board width and height to newly loaded puzzle's width and height
+                boardWidth = puzzle.puzzle.GetLength(0);
+                boardHeight = puzzle.puzzle.GetLength(1);
+                //create a fresh new board using the new dimensions
+                ((PaintBoard)board).AdjustBoard(boardWidth - oldWidth, boardHeight - oldHeight);
+                //fill in all the blocks that are filled in the puzzle
+                for (int i = 0; i < boardWidth; i++) {
+                    for (int j = 0; j < boardHeight; j++) {
+                        if (puzzle.puzzle[i, j] == 1) board.ChangeTileColor(i, j, 1);
+                    }
+                }
+                //Recount everything now
+                CountEverything();
+            } catch {
+
             }
-            //Recount everything now
-            CountEverything();
+        }
+
+        private void SavePuzzle() {
+            //Save puzzle to file
+            if (fileSaver.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+                pzSaver.savePuzzle(puzzle, fileSaver.FileName);
+            }
         }
 
         #region Paint Screen Update
         public override bool UpdateInput(int[] _inputState) {
             base.UpdateInput(_inputState);
             if (controlInputs.Has(ControlInputs.SAVE)) {
-                if (fileSaver.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                    pzSaver.savePuzzle(puzzle, fileSaver.FileName);
-                }
+                SavePuzzle();
             } else if (controlInputs.Has(ControlInputs.OPEN)){
                 LoadPuzzle();
             } else if (controlInputs.Has(ControlInputs.NEW)) {

@@ -10,30 +10,42 @@ using Microsoft.Xna.Framework.Content;
 namespace PicrossClone {
     public class TitleScreen : ConcreteScreen {
         Menu titleMenu, makeMenu, currMenu;
-
-        Vector2 mousePos;
+        Vector2 logoPos, bottomTextPos, mousePos;
+        string bottomText;
+        SpriteFont titleFont;
 
         public override void Initalize() {
             titleMenu = new Menu();
-            titleMenu.SetPosition(new Vector2(100));
-            titleMenu.SetTitle("PicrossClone");
+            titleMenu.SetPosition(new Vector2(100,180));
             makeMenu = new Menu();
-            makeMenu.SetPosition(new Vector2(100));
+            makeMenu.SetPosition(new Vector2(100,180));
             makeMenu.SetTitle("Make a Puzzle");
             currMenu = titleMenu;
+            logoPos = new Vector2(-50, -50);
+            bottomText = "2014 James Cote";
+            bottomTextPos = new Vector2(50, 350);
         }
 
         public override void LoadFonts(FontHolder _fontHolder) {
             titleMenu.SetFonts(_fontHolder);
             makeMenu.SetFonts(_fontHolder);
+            titleFont = _fontHolder.BodyFont;
         }
 
         public void AssignTitleMenuButtons(MenuButton[] _menuBtnArr) {
             titleMenu.AddMultiple(_menuBtnArr);
+            MenuButton exitBtn;
+            exitBtn.name = "Exit";
+            exitBtn.menuAction = EscapeHandle;
+            titleMenu.Add(exitBtn);
         }
 
         public void AssignMakeMenuButtons(MenuButton[] _menuBtnArr) {
             makeMenu.AddMultiple(_menuBtnArr);
+            MenuButton backBtn;
+            backBtn.name = "Back";
+            backBtn.menuAction = EscapeHandle;
+            makeMenu.Add(backBtn);
         }
 
         public void SwitchToMakeMenu() {
@@ -78,6 +90,8 @@ namespace PicrossClone {
         public override void Draw(SpriteBatch _spriteBatch) {
             base.Draw(_spriteBatch);
             currMenu.DrawMenu(_spriteBatch);
+            _spriteBatch.Draw(Assets.logo, logoPos, null, Color.White, 0f, Vector2.Zero, 0.3f, SpriteEffects.None, 0f);
+            _spriteBatch.DrawString(titleFont, bottomText, bottomTextPos, Color.Black);
         }
     }
 }

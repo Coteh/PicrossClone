@@ -89,6 +89,8 @@ namespace PicrossClone {
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            // Load in Game Logo
+            Assets.logo = Content.Load<Texture2D>(@"Images/Logo");
             // Load the fonts that will be used
             gameFont = Content.Load<SpriteFont>(@"Fonts/ComicSans");
             gameFontHolder = FontHolder.BuildFontHolder(gameFont, gameFont);
@@ -157,7 +159,7 @@ namespace PicrossClone {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.SpringGreen);
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, cam.Transform);
             currScreen.Draw(spriteBatch);

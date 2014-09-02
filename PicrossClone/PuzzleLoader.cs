@@ -18,18 +18,16 @@ namespace PicrossClone {
             PuzzleData pZ;
             pZ.puzzle = new int[16, 16];
             //Grab all lines from file
-            String[] lineArr = lo.loadAllLines(_filePath);
+            String[] lineArr = new String[1];
+            try{
+                lineArr = lo.loadAllLines(_filePath);
+            } catch (System.IO.FileNotFoundException e){
+                throw e;
+            }
             //Check if file opened is empty
             if (lineArr.Length <= 0) {
-                //Create fake puzzle data and return that instead
-                pZ.name = "Error Handling Puzzle";
-                pZ.puzzle = new int[4, 4];
-                for (int i = 0; i < 4; i++) {
-                    for (int j = 0; j < 4; j++) {
-                        pZ.puzzle[i, j] = 1;
-                    }
-                }
-                return pZ;
+                //throw blank file error here
+                throw new EmptyFileException("The file at " + _filePath + " is empty.");
             }
             //Make the first line the name
             pZ.name = lineArr[0].Split(new string[]{"--"}, StringSplitOptions.RemoveEmptyEntries)[0];

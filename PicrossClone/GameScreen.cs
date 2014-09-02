@@ -20,6 +20,7 @@ namespace PicrossClone {
         GameTimeTicker timeTicker;
         TimeKeeper endTimeKeeper;
         GameTimeTicker endTimeTicker;
+        int timeLoseMultiplier;
 
         //File IO variables
         PuzzleLoader pzLoader;
@@ -54,12 +55,23 @@ namespace PicrossClone {
             fileOpener.Title = "Open puzzle";
             fileOpener.InitialDirectory = Assets.levelFilePath;
             //Execute the file opener window
-            if (fileOpener.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                //Load specified puzzle if user presses OK
-                puzzle = pzLoader.loadPuzzle(fileOpener.FileName);
-            } else {
-                //Load default puzzle
-                puzzle = pzLoader.loadPuzzle(@"Content/levels/puzzle_test.pic");
+            try {
+                if (fileOpener.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+                    //Load specified puzzle if user presses OK
+                    puzzle = pzLoader.loadPuzzle(fileOpener.FileName);
+                } else {
+                    //Load default puzzle
+                    puzzle = pzLoader.loadPuzzle(@"Content/levels/puzzle_test.pic");
+                }
+            } catch {
+                //Make a fake puzzle and use that instead
+                puzzle.name = "Error Handling Puzzle";
+                puzzle.puzzle = new int[4, 4];
+                for (int i = 0; i < 4; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        puzzle.puzzle[i, j] = 1;
+                    }
+                }
             }
             //Create tileCounter object, place the newly loaded puzzle into it
             tileCounter = new BoardTileCounter(puzzle.puzzle);
@@ -68,12 +80,14 @@ namespace PicrossClone {
             //Create the game board, a board that the user can manipulate
             board = new GameBoard(puzzle.puzzle.GetLength(0), puzzle.puzzle.GetLength(1));
             //Initalize the timeKeeper object at specified time (first parameter is minutes and second parameter is seconds)
-            timeKeeper = new TimeKeeper(1, 0);
+            timeKeeper = new TimeKeeper(20, 0);
             //Initalize the timeTicker object, which will take in the timeKeeper and for every second of gameTime that passes, it will increment the time
             timeTicker = new GameTimeTicker();
             timeTicker.SetTimeKeeper(timeKeeper);
             timeTicker.SetIncrement(-1);
             timeTicker.SetEnabled(true);
+            //Setting time lose multiplier to 1
+            timeLoseMultiplier = 1;
             //Make the board visisble to the player
             ToggleBoardVisibility(true);
             //Add the GameScreen specific draws into the drawCalls delegate method
@@ -175,8 +189,9 @@ namespace PicrossClone {
             if (checkIfWithinPuzzleConstraints(mouseGridPoint)) {
                 if (puzzle.puzzle[mouseGridPoint.X, mouseGridPoint.Y] != 1) {
                     if (playerState == PlayerState.Alive) {
-                        timeKeeper.AddTime(-20); //taking away time for guessing incorrectly
+                        timeKeeper.AddTime(-20 * timeLoseMultiplier); //taking away time for guessing incorrectly
                         CheckForGameOver();
+                        timeLoseMultiplier++;
                     }
                     return;
                 }
@@ -270,7 +285,7 @@ namespace PicrossClone {
 
         #region Game Screen Draws
         private void GameScreenRunningDraw(SpriteBatch _spriteBatch) {
-            timeKeeper.Draw(_spriteBatch, gameFont.BodyFont, new Vector2(300, 100));
+            timeKeeper.Draw(_spriteBatch, gameFont.BodyFont, Vector2.Zero + camera.Position);
         }
         private void GameScreenEndDraw(SpriteBatch _spriteBatch) {
             _spriteBatch.DrawString(gameFont.BodyFont, currMessage, new Vector2(200,200), Color.Black);
