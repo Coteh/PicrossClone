@@ -159,6 +159,8 @@ namespace PicrossClone {
             timeTicker.SetEnabled(false);
             //We got a winner!
             currMessage = winMessage;
+            //Remove all X marked tiles
+            board.ClearTileColor(3);
             //Add the end screen draw and remove the running draw and count display draw
             drawCalls -= GameScreenRunningDraw;
             drawCalls -= countDisplay.Draw;

@@ -96,6 +96,18 @@ namespace PicrossClone {
             }
         }
 
+        /// <summary>
+        /// Clears all tiles of a certain color.
+        /// </summary>
+        /// <param name="_tileColor">Tile color to clear.</param>
+        public void ClearTileColor(int _tileColor) {
+            for (int i = 0; i < board.GetLength(0); i++) {
+                for (int j = 0; j < board.GetLength(1); j++) {
+                    if (board[i, j] == _tileColor) board[i, j] = 0;
+                }
+            }
+        }
+
         public bool isInBounds(int _xIndex, int _yIndex) {
             return (_xIndex >= 0 && _xIndex < board.GetLength(0)
                 && _yIndex >= 0 && _yIndex < board.GetLength(1));
