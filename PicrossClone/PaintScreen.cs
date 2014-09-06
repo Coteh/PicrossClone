@@ -216,7 +216,15 @@ namespace PicrossClone {
             }
         }
 
+        private void SaveName() {
+            //Set the name of the puzzle
+            string newName = Microsoft.VisualBasic.Interaction.InputBox("What would you like the puzzle name to be? This name won't appear to the player until they complete the puzzle. Press Cancel to leave it as default.", "Setting Puzzle Name", puzzle.name);
+            if (newName.Length > 0) puzzle.name = newName;
+        }
+
         private void SavePuzzle() {
+            //For now, we will be calling the save name function here as well
+            SaveName();
             //Save puzzle to file
             if (fileSaver.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
                 pzSaver.savePuzzle(puzzle, fileSaver.FileName);

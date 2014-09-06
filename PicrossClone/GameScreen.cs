@@ -32,7 +32,6 @@ namespace PicrossClone {
 
         //Game Messages
         private string currMessage;
-        private string winMessage = "You win!";
         private string loseMessage = "Game over!";
 
         #region Initalize Methods
@@ -165,7 +164,7 @@ namespace PicrossClone {
             playerState = PlayerState.Win;
             timeTicker.SetEnabled(false);
             //We got a winner!
-            currMessage = winMessage;
+            currMessage = puzzle.name;
             //Remove all X marked tiles
             board.ClearTileColor(3);
             //Add the end screen draw and remove the running draw and count display draw
@@ -297,7 +296,7 @@ namespace PicrossClone {
             timeKeeper.Draw(_spriteBatch, gameFont.BodyFont, Vector2.Zero + camera.Position);
         }
         private void GameScreenEndDraw(SpriteBatch _spriteBatch) {
-            _spriteBatch.DrawString(gameFont.BodyFont, currMessage, new Vector2(200,200), Color.Black);
+            _spriteBatch.DrawString(gameFont.BodyFont, currMessage, new Vector2(200,0) + camera.Position, Color.Black);
         }
         #endregion
 
