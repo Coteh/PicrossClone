@@ -146,12 +146,19 @@ namespace PicrossClone {
 
         #region Actions
         protected override void Pause(){
-            base.Pause();
-            if (isPaused) {
-                drawCalls -= GameScreenRunningDraw;
-            } else {
-                drawCalls += GameScreenRunningDraw;
+            if (playerState == PlayerState.Alive) {
+                base.Pause();
+                if (isPaused) {
+                    drawCalls -= GameScreenRunningDraw;
+                } else {
+                    drawCalls += GameScreenRunningDraw;
+                }
             }
+        }
+
+        protected override void EscapeHandle() {
+            if (playerState == PlayerState.Alive) base.EscapeHandle();
+            else isGoingToExit = true;
         }
 
         private void WinAction() {
