@@ -28,6 +28,8 @@ namespace PicrossClone {
 
         //Mouse position converted to grid point
         protected Point mouseGridPoint;
+        //Grid point for the arrows to see
+        protected Point mouseGridArrowPoint;
 
         //Mouse position vectors
         private Vector2 mousePos;
@@ -114,9 +116,11 @@ namespace PicrossClone {
             if (_expression) {
                 drawCalls += countDisplay.Draw;
                 drawCalls += board.Draw;
+                drawCalls += DrawArrows;
             } else {
                 drawCalls -= countDisplay.Draw;
                 drawCalls -= board.Draw;
+                drawCalls -= DrawArrows;
             }
         }
 
@@ -147,7 +151,8 @@ namespace PicrossClone {
                 mouseGridPoint.X = newX;
                 mouseGridPoint.Y = newY;
                 HighlightPoint();
-                Console.WriteLine("Now at X: " + mouseGridPoint.X + " and Y: " + mouseGridPoint.Y);
+                //Console.WriteLine("Now at X: " + mouseGridPoint.X + " and Y: " + mouseGridPoint.Y);
+                mouseGridArrowPoint = mouseGridPoint; //let the arrows know where we are
             }
         }
 
@@ -197,9 +202,10 @@ namespace PicrossClone {
             if (!isPaused && (prevMousePos == null || mousePos != prevMousePos)) {
                 //Converting mouse position to grid points
                 mouseGridPoint = board.getMouseToGridCoords(mousePos + camera.Position);
-                //Check for highlight
+                //Check for in bounds
                 if (board.isInBounds(mouseGridPoint.X, mouseGridPoint.Y)) {
-                    HighlightPoint();
+                    HighlightPoint(); //highlight stuff
+                    mouseGridArrowPoint = mouseGridPoint; //let the arrows know where we are
                 }
                 //Setting previous mouse position
                 prevMousePos = mousePos;
@@ -290,6 +296,11 @@ namespace PicrossClone {
         public override void Draw(SpriteBatch _spriteBatch) {
             base.Draw(_spriteBatch);
             if (drawCalls != null) drawCalls(_spriteBatch);
+        }
+
+        protected void DrawArrows(SpriteBatch _spriteBatch) {
+            _spriteBatch.Draw(Assets.arrow, Vector2.Zero - new Vector2(20, 0 - (mouseGridArrowPoint.Y * 16)), null, Color.White, 0.0f, Vector2.Zero, 0.1f, SpriteEffects.None, 0.0f);
+            _spriteBatch.Draw(Assets.arrow, Vector2.Zero - new Vector2(-16 - (mouseGridArrowPoint.X * 16), 16), null, Color.White, (float)Math.PI / 2, Vector2.Zero, 0.1f, SpriteEffects.None, 0.0f);
         }
 
         public override void UnloadScreen() {

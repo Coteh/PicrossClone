@@ -91,6 +91,8 @@ namespace PicrossClone {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             // Load in Game Logo
             Assets.logo = Content.Load<Texture2D>(@"Images/Logo");
+            // Load in Indicator Arrow
+            Assets.arrow = Content.Load<Texture2D>(@"GUI/arrow/Arrow");
             // Load the fonts that will be used
             gameFont = Content.Load<SpriteFont>(@"Fonts/ComicSans");
             gameFontHolder = FontHolder.BuildFontHolder(gameFont, gameFont);

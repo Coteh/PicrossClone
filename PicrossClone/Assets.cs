@@ -8,6 +8,7 @@ namespace PicrossClone {
     public class Assets {
         public static Texture2D pixel;
         public static Texture2D logo;
+        public static Texture2D arrow;
         public static string levelFilePath;
     }
 }

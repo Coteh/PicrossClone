@@ -170,6 +170,7 @@ namespace PicrossClone {
             //Add the end screen draw and remove the running draw and count display draw
             drawCalls -= GameScreenRunningDraw;
             drawCalls -= countDisplay.Draw;
+            drawCalls -= DrawArrows;
             drawCalls += GameScreenEndDraw;
             //Setup the end timer (once it goes off, user will go back to the title screen)
             SetUpEndTimer();
@@ -184,6 +185,7 @@ namespace PicrossClone {
             drawCalls -= GameScreenRunningDraw;
             drawCalls -= countDisplay.Draw;
             drawCalls -= board.Draw;
+            drawCalls -= DrawArrows;
             drawCalls += GameScreenEndDraw;
             //Setup the end timer (once it goes off, user will go back to the title screen)
             SetUpEndTimer();
