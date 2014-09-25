@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Content;
 namespace PicrossClone {
     public class TitleScreen : ConcreteScreen {
         Menu titleMenu, makeMenu, currMenu;
-        Vector2 logoPos, bottomTextPos, mousePos;
+        Vector2 logoPos, bottomTextPos;
         string bottomText;
         SpriteFont titleFont;
 
@@ -67,10 +67,11 @@ namespace PicrossClone {
         public override void Update(GameTime _gameTime) {
             base.Update(_gameTime);
             currMenu.Update(mousePos + camera.Position, false, false);
+            cursor.Update(_gameTime, mousePos + camera.Position);
         }
 
         public override void UpdateMouse(Vector2 _mousePos) {
-            mousePos = _mousePos;
+            base.UpdateMouse(_mousePos);
         }
 
         public override bool UpdateInput(int[] _inputState) {

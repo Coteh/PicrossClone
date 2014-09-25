@@ -31,9 +31,8 @@ namespace PicrossClone {
         //Grid point for the arrows to see
         protected Point mouseGridArrowPoint;
 
-        //Mouse position vectors
-        private Vector2 mousePos;
-        private Vector2 prevMousePos;
+        //Offset vector for the image cursor (used when input methods other than the mouse navigate the grid)
+        Vector2 imageCursorOffsetVec;
 
         //Pause Menu
         Menu pauseMenu;
@@ -59,6 +58,7 @@ namespace PicrossClone {
         public PicrossScreen()
             : base() {
                 mousePos = Vector2.Zero;
+                imageCursorOffsetVec = new Vector2(9.4f, 9.4f);
         }
 
         public override void Initalize() {
@@ -153,6 +153,7 @@ namespace PicrossClone {
                 HighlightPoint();
                 //Console.WriteLine("Now at X: " + mouseGridPoint.X + " and Y: " + mouseGridPoint.Y);
                 mouseGridArrowPoint = mouseGridPoint; //let the arrows know where we are
+                cursor.setCursorPoints(board.getGridCoordToMousePos(newX, newY) + imageCursorOffsetVec); //update the mouse cursor as well
             }
         }
 
@@ -207,6 +208,8 @@ namespace PicrossClone {
                     HighlightPoint(); //highlight stuff
                     mouseGridArrowPoint = mouseGridPoint; //let the arrows know where we are
                 }
+                //Updating cursor
+                cursor.Update(_gameTime, mousePos + camera.Position);
                 //Setting previous mouse position
                 prevMousePos = mousePos;
             }
@@ -232,11 +235,12 @@ namespace PicrossClone {
             } else if (inputState.Has(InputState.MOVE_DOWN)) {
                 pauseMenu.Move(-1);
             }
+            //Updating cursor
+            cursor.Update(_gameTime, mousePos + camera.Position);
         }
 
         public override void UpdateMouse(Vector2 _mousePos) {
-            //Grabbing mouse position
-            mousePos = _mousePos;
+            base.UpdateMouse(_mousePos);
         }
 
         public override bool UpdateInput(int[] _inputState) {

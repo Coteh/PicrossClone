@@ -25,6 +25,13 @@ namespace GameClasses {
         protected SelectState selectState;
         protected MiscInputs miscInputs;
 
+        //Mouse position vectors
+        protected Vector2 mousePos;
+        protected Vector2 prevMousePos;
+
+        //Cursor object
+        protected Cursor cursor;
+
         #region Initalize Methods
         public ConcreteScreen() {
             Initalize();
@@ -38,6 +45,9 @@ namespace GameClasses {
         /// <param name="_cam">Camera2D to set.</param>
         public override void setCamera(Camera2D _cam) {
             camera = _cam;
+        }
+        public override void setCursor(Cursor _cursor) {
+            cursor = _cursor;
         }
         #endregion
 
@@ -72,6 +82,11 @@ namespace GameClasses {
                 EscapeHandle();
             }
             return isExit;
+        }
+
+        public override void UpdateMouse(Vector2 _mousePos) {
+            //Grabbing mouse position
+            mousePos = _mousePos;
         }
 
         #endregion

@@ -42,6 +42,10 @@ namespace PicrossClone {
             return gridPoint;
         }
 
+        public Vector2 getGridCoordToMousePos(int _x, int _y) {
+            return new Vector2(_x * tileWidth, _y * tileHeight);
+        }
+
         public ConcreteBoard(int _gridWidth, int _gridHeight)
             : base() {
             gridWidth = _gridWidth;

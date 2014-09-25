@@ -37,6 +37,9 @@ namespace PicrossClone {
         //Camera object
         Camera2D cam;
 
+        //Cursor object
+        Cursor cursor;
+
         public Game1()
             : base() {
             graphics = new GraphicsDeviceManager(this);
@@ -66,6 +69,9 @@ namespace PicrossClone {
             cam = new Camera2D();
             cam.Position = new Vector2(-200, -100);
             currScreen.setCamera(cam);
+
+            cursor = new Cursor(Vector2.Zero + cam.Position);
+            screenManager.setCursorToScreens(cursor);
 
             MenuButton playBtn, makeBtn, makeNewBtn, makeLoadBtn;
             playBtn.name = "Play";
@@ -98,6 +104,8 @@ namespace PicrossClone {
             gameFontHolder = FontHolder.BuildFontHolder(gameFont, gameFont);
             // Load in fonts into the current screen
             LoadFontsToScreen();
+            // Load in the cursor!
+            cursor.LoadContent(Content);
         }
 
         private void LoadFontsToScreen() {
@@ -165,6 +173,7 @@ namespace PicrossClone {
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, cam.Transform);
             currScreen.Draw(spriteBatch);
+            cursor.Draw(spriteBatch);
             spriteBatch.End();
 
             base.Draw(gameTime);

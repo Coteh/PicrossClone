@@ -36,5 +36,16 @@ namespace GameClasses {
             }
             return idsToReturn;
         }
+
+        /// <summary>
+        /// Gives all the screens (that are loaded into the screenList at the time this method is called)
+        /// a reference to the cursor
+        /// </summary>
+        /// <param name="_cursor"></param>
+        public void setCursorToScreens(Cursor _cursor) {
+            for (int i = 0; i < screenList.Count; i++) {
+                screenList[i].setCursor(_cursor);
+            }
+        }
     }
 }

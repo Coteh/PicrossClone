@@ -19,7 +19,7 @@ namespace GameClasses {
                     }
                 }
             } catch (FileNotFoundException e) {
-                throw new FileNotFoundException("Puzzle map at " + _filePath + " cannot be found.", e);
+                throw new FileNotFoundException("File at " + _filePath + " cannot be found.", e);
             } catch (IOException) {
 
             } catch {

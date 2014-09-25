@@ -18,6 +18,7 @@ namespace GameClasses {
 
         }
         public abstract void setCamera(Camera2D _cam);
+        public abstract void setCursor(Cursor _cursor);
         public abstract void LoadContent(ContentManager _contentManager);
         public abstract void LoadFonts(FontHolder _fontHolder);
         public abstract void Update(GameTime _gameTime);
