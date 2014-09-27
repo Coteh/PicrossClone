@@ -21,7 +21,8 @@ namespace GameClasses {
         Vector2 menuPosition;
         float spacing;
         List<Vector2> btnPosList;
-        float menuButtonWidth = 256; //it's just a fake width for now
+        float menuButtonWidth = 128; //it's just a fake width for now
+        float cursorOffset = 20.0f; //again, a hard coded value (hopefully just temporary)
 
         FontHolder fontHolder;
 
@@ -30,12 +31,23 @@ namespace GameClasses {
         Color regularColor = Color.Black, highlightedColor = Color.Yellow, pressedColor = Color.Lime;
         bool isMouseHeld;
 
+        Vector2 prevMousePos;
+
         public Menu() {
             menuList = new List<MenuButton>();
             isButtonDynamic = new List<bool>();
             buttonName = new List<string>();
             btnPosList = new List<Vector2>();
             spacing = 32.0f;
+        }
+
+        public Vector2 GetMenuItemPosition(int _itemNum) {
+            if (_itemNum < 0 || _itemNum >= btnPosList.Count) _itemNum = 0; //default to 0
+            return btnPosList[_itemNum] + new Vector2(menuButtonWidth + cursorOffset, cursorOffset);
+        }
+
+        public Vector2 GetCurrentMenuItemPosition() {
+            return GetMenuItemPosition(selectedMenuIndex);
         }
 
         public void SetPosition(Vector2 _pos){
@@ -84,17 +96,20 @@ namespace GameClasses {
         }
 
         public bool Update(Vector2 _mousePos, bool _isMouseHeld, bool _isMouseReleased) {
-            if (_mousePos.X >= menuPosition.X && _mousePos.X <= menuPosition.X + menuButtonWidth) {
-                for (int i = 0; i < menuList.Count; i++) {
-                    if (_mousePos.Y >= btnPosList[i].Y && _mousePos.Y <= btnPosList[i].Y + spacing) {
-                        selectedMenuIndex = i;
-                        isMouseHeld = _isMouseHeld;
-                        if (_isMouseReleased) {
-                            return true;
+            if (_mousePos != prevMousePos) {
+                if (_mousePos.X >= menuPosition.X && _mousePos.X <= menuPosition.X + menuButtonWidth) {
+                    for (int i = 0; i < menuList.Count; i++) {
+                        if (_mousePos.Y >= btnPosList[i].Y && _mousePos.Y <= btnPosList[i].Y + spacing) {
+                            selectedMenuIndex = i;
+                            isMouseHeld = _isMouseHeld;
+                            if (_isMouseReleased) {
+                                return true;
+                            }
                         }
                     }
                 }
             }
+            prevMousePos = _mousePos;
             if (_isMouseReleased) isMouseHeld = false;
             return false;
         }

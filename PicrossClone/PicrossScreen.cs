@@ -143,11 +143,10 @@ namespace PicrossClone {
             }
         }
 
-        protected void moveGridCursor(int _xDirection, int _yDirection) {
-            int newX = mouseGridPoint.X + _xDirection, newY = mouseGridPoint.Y + _yDirection;
+        protected virtual void moveGridCursor(int _xDirection, int _yDirection) {
+            int newX = prevHighlightedPoint.X + _xDirection, newY = prevHighlightedPoint.Y + _yDirection;
             //Checks to see if it can make the move first before making it
             if (board.isInBounds(newX, newY)) {
-                mouseGridPoint = prevHighlightedPoint;
                 mouseGridPoint.X = newX;
                 mouseGridPoint.Y = newY;
                 HighlightPoint();
@@ -179,12 +178,14 @@ namespace PicrossClone {
                 rightSelectActions += RightSelect;
                 selectDelay = 0.001f;
                 ToggleBoardVisibility(true);
+                //Move the image cursor back to where it was before
+                cursor.setCursorPoints(board.getGridCoordToMousePos(prevHighlightedPoint.X, prevHighlightedPoint.Y) + imageCursorOffsetVec); //update the mouse cursor to where the currently highlighted grid point is
+                prevMousePos = mousePos;
             }
         }
 
         /// <summary>
         /// Pauses the game if it isn't paused.
-        /// Unpauses the game if it is paused.
         /// </summary>
         protected virtual void Pause() {
             isPaused = !isPaused;
@@ -229,14 +230,18 @@ namespace PicrossClone {
         private void PauseUpdate(GameTime _gameTime) {
             //Updating pause menu
             pauseMenu.Update(mousePos + camera.Position, false, false);
-            if (selectState.Has(SelectState.LEFT_RELEASE)) pauseMenu.Select();
+            if (selectState.Has(SelectState.LEFT_RELEASE)) {
+                pauseMenu.Select();
+            }  
             if (inputState.Has(InputState.MOVE_UP)) {
-                pauseMenu.Move(1);
-            } else if (inputState.Has(InputState.MOVE_DOWN)) {
                 pauseMenu.Move(-1);
+                cursor.setCursorPoints(pauseMenu.GetCurrentMenuItemPosition());
+            } else if (inputState.Has(InputState.MOVE_DOWN)) {
+                pauseMenu.Move(1);
+                cursor.setCursorPoints(pauseMenu.GetCurrentMenuItemPosition());
             }
             //Updating cursor
-            cursor.Update(_gameTime, mousePos + camera.Position);
+            if (mousePos != prevMousePos) cursor.Update(_gameTime, mousePos + camera.Position);
         }
 
         public override void UpdateMouse(Vector2 _mousePos) {

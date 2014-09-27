@@ -50,10 +50,12 @@ namespace PicrossClone {
 
         public void SwitchToMakeMenu() {
             currMenu = makeMenu;
+            cursor.setCursorPoints(currMenu.GetCurrentMenuItemPosition());
         }
 
         public void SwitchToTitleMenu() {
             currMenu = titleMenu;
+            cursor.setCursorPoints(currMenu.GetCurrentMenuItemPosition());
         }
 
         protected override void EscapeHandle() {
@@ -67,7 +69,8 @@ namespace PicrossClone {
         public override void Update(GameTime _gameTime) {
             base.Update(_gameTime);
             currMenu.Update(mousePos + camera.Position, false, false);
-            cursor.Update(_gameTime, mousePos + camera.Position);
+            if (mousePos != prevMousePos) cursor.Update(_gameTime, mousePos + camera.Position);
+            prevMousePos = mousePos;
         }
 
         public override void UpdateMouse(Vector2 _mousePos) {
@@ -77,13 +80,15 @@ namespace PicrossClone {
         public override bool UpdateInput(int[] _inputState) {
             base.UpdateInput(_inputState);
             //If left select OR left held and mouse is in new grid point (to avoid duplicate clicks)
-            if (selectState.Has(SelectState.LEFT_RELEASE)) {
+            if (selectState.Has(SelectState.LEFT_RELEASE) || inputState.Has(InputState.START)) {
                 currMenu.Select();
             }
             if (inputState.Has(InputState.MOVE_UP)) {
-                currMenu.Move(1);
-            } else if (inputState.Has(InputState.MOVE_DOWN)) {
                 currMenu.Move(-1);
+                cursor.setCursorPoints(currMenu.GetCurrentMenuItemPosition());
+            } else if (inputState.Has(InputState.MOVE_DOWN)) {
+                currMenu.Move(1);
+                cursor.setCursorPoints(currMenu.GetCurrentMenuItemPosition());
             }
             return isExit;
         }

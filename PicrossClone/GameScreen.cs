@@ -155,6 +155,12 @@ namespace PicrossClone {
             }
         }
 
+        protected override void moveGridCursor(int _xDirection, int _yDirection) {
+            if (playerState == PlayerState.Alive) {
+                base.moveGridCursor(_xDirection, _yDirection); //only move grid cursor using arrow keys/control pad if in-game
+            }
+        }
+
         protected override void EscapeHandle() {
             if (playerState == PlayerState.Alive) base.EscapeHandle();
             else isGoingToExit = true;
