@@ -124,10 +124,6 @@ namespace PicrossClone {
             }
         }
 
-        private void UnhighlightPoint() {
-            if (board.getTileType(prevHighlightedPoint.X, prevHighlightedPoint.Y) == 2) board.ChangeTileColor(prevHighlightedPoint.X, prevHighlightedPoint.Y, 0);
-        }
-
         private void setPrevHighlightedCoords(int _xIndex, int _yIndex) {
             prevHighlightedPoint.X = _xIndex;
             prevHighlightedPoint.Y = _yIndex;
@@ -135,25 +131,24 @@ namespace PicrossClone {
 
         protected void HighlightPoint() {
             if (!isPaused) {
-                UnhighlightPoint();
-                if (board.getTileType(mouseGridPoint.X, mouseGridPoint.Y) == 0) {
-                    board.ChangeTileColor(mouseGridPoint.X, mouseGridPoint.Y, 2);
-                }
+                board.SetHighlightedPoint(new Point(mouseGridPoint.X, mouseGridPoint.Y));
                 setPrevHighlightedCoords(mouseGridPoint.X, mouseGridPoint.Y);
+            }
+        }
+
+        protected virtual void setGridCursor(Point _mouseGridPoint) {
+            //Checks to see if it can make the move first before making it
+            if (board.isInBounds(_mouseGridPoint.X, _mouseGridPoint.Y)) {
+                mouseGridPoint = _mouseGridPoint;
+                HighlightPoint();
+                mouseGridArrowPoint = mouseGridPoint; //let the arrows know where we are
+                cursor.setCursorPoints(board.getGridCoordToMousePos(mouseGridPoint.X, mouseGridPoint.Y) + imageCursorOffsetVec); //update the mouse cursor as well
             }
         }
 
         protected virtual void moveGridCursor(int _xDirection, int _yDirection) {
             int newX = prevHighlightedPoint.X + _xDirection, newY = prevHighlightedPoint.Y + _yDirection;
-            //Checks to see if it can make the move first before making it
-            if (board.isInBounds(newX, newY)) {
-                mouseGridPoint.X = newX;
-                mouseGridPoint.Y = newY;
-                HighlightPoint();
-                //Console.WriteLine("Now at X: " + mouseGridPoint.X + " and Y: " + mouseGridPoint.Y);
-                mouseGridArrowPoint = mouseGridPoint; //let the arrows know where we are
-                cursor.setCursorPoints(board.getGridCoordToMousePos(newX, newY) + imageCursorOffsetVec); //update the mouse cursor as well
-            }
+            setGridCursor(new Point(newX, newY));
         }
 
         protected virtual void LeftSelect() { }
@@ -164,14 +159,12 @@ namespace PicrossClone {
 
         private void PauseChecks() {
             if (isPaused) {
-                UnhighlightPoint();
                 updateCalls += PauseUpdate;
                 drawCalls += pauseMenu.DrawMenu;
                 leftSelectActions -= LeftSelect;
                 rightSelectActions -= RightSelect;
                 ToggleBoardVisibility(false);
             } else {
-                HighlightPoint();
                 updateCalls -= PauseUpdate;
                 drawCalls -= pauseMenu.DrawMenu;
                 leftSelectActions += LeftSelect;
@@ -180,12 +173,12 @@ namespace PicrossClone {
                 ToggleBoardVisibility(true);
                 //Move the image cursor back to where it was before
                 cursor.setCursorPoints(board.getGridCoordToMousePos(prevHighlightedPoint.X, prevHighlightedPoint.Y) + imageCursorOffsetVec); //update the mouse cursor to where the currently highlighted grid point is
-                prevMousePos = mousePos;
             }
         }
 
         /// <summary>
         /// Pauses the game if it isn't paused.
+        /// Unpauses the game if it is paused.
         /// </summary>
         protected virtual void Pause() {
             isPaused = !isPaused;
@@ -203,12 +196,7 @@ namespace PicrossClone {
             //If mouse moved, provide an update to board's mouse grid point
             if (!isPaused && (prevMousePos == null || mousePos != prevMousePos)) {
                 //Converting mouse position to grid points
-                mouseGridPoint = board.getMouseToGridCoords(mousePos + camera.Position);
-                //Check for in bounds
-                if (board.isInBounds(mouseGridPoint.X, mouseGridPoint.Y)) {
-                    HighlightPoint(); //highlight stuff
-                    mouseGridArrowPoint = mouseGridPoint; //let the arrows know where we are
-                }
+                setGridCursor(board.getMouseToGridCoords(mousePos + camera.Position));
                 //Updating cursor
                 cursor.Update(_gameTime, mousePos + camera.Position);
                 //Setting previous mouse position

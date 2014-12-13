@@ -17,6 +17,9 @@ namespace PicrossClone {
         protected int tileWidth = 16, tileHeight = 16, gridWidth = 16, gridHeight = 16;
         protected Rectangle[,] tilesRectArr;
         protected Color[] colorArr;
+        private Color highlightColor;
+        private Point highlightedPoint;
+        private bool isATileSelected;
 
         /// <summary>
         /// Gets tile type of tile at (X, Y)
@@ -52,6 +55,7 @@ namespace PicrossClone {
             gridHeight = _gridHeight;
             Clear();
             colorArr = new Color[] { Color.White, Color.Black, Color.LightGray, Color.Yellow };
+            highlightColor = Color.LightGray;
             CalibrateRects();
         }
 
@@ -97,6 +101,7 @@ namespace PicrossClone {
         public void ChangeTileColor(int _xIndex, int _yIndex, int _tileColor) {
             if (isInBounds(_xIndex, _yIndex)) {
                 board[_xIndex, _yIndex] = _tileColor;
+                isATileSelected = true;
             }
         }
 
@@ -107,9 +112,15 @@ namespace PicrossClone {
         public void ClearTileColor(int _tileColor) {
             for (int i = 0; i < board.GetLength(0); i++) {
                 for (int j = 0; j < board.GetLength(1); j++) {
-                    if (board[i, j] == _tileColor) board[i, j] = 0;
+                    if (board[i, j] == _tileColor) ChangeTileColor(i, j, 0);
                 }
             }
+        }
+
+        public void SetHighlightedPoint(Point _highlightedPoint) {
+            if (_highlightedPoint == highlightedPoint) return; //only set a highlighted point if it's different from the current one
+            highlightedPoint = _highlightedPoint;
+            isATileSelected = false;
         }
 
         public bool isInBounds(int _xIndex, int _yIndex) {
@@ -124,7 +135,8 @@ namespace PicrossClone {
         public override void Draw(SpriteBatch _spriteBatch) {
             for (int i = 0; i < board.GetLength(0); i++) {
                 for (int j = 0; j < board.GetLength(1); j++) {
-                    _spriteBatch.DrawRect(tilesRectArr[i, j], colorArr[board[i, j]]);
+                    Color colorToUse = (i == highlightedPoint.X && j == highlightedPoint.Y && !isATileSelected) ? highlightColor : colorArr[board[i, j]];
+                    _spriteBatch.DrawRect(tilesRectArr[i, j], colorToUse);
                 }
             }
         }
