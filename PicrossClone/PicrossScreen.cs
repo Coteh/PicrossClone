@@ -305,6 +305,8 @@ namespace PicrossClone {
             base.UnloadScreen();
             //Run pause check, get rid of pause menu and such
             PauseChecks();
+            //Set arrow point back to 0
+            mouseGridArrowPoint = Point.Zero;
             //Nullify delegate methods
             leftSelectActions = null;
             rightSelectActions = null;
