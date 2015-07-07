@@ -54,6 +54,9 @@ namespace PicrossClone {
         protected override void Initialize() {
             //Initalizing Input Manager
             inputManager = InputManager.Instance;
+            //Initialize Global stuff
+            Global.EndGame = Exit;
+            Global.ReturnToTitle = ReturnToTitleScreen;
             //Initalizing static assets
             Assets.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Assets.pixel.SetData(new[] { Color.White });
@@ -72,16 +75,18 @@ namespace PicrossClone {
             cursor = new Cursor(Vector2.Zero + cam.Position);
             screenManager.setCursorToScreens(cursor);
 
-            MenuButton playBtn, makeBtn, makeNewBtn, makeLoadBtn;
+            MenuButton playBtn, makeBtn, exitBtn, makeNewBtn, makeLoadBtn;
             playBtn.name = "Play";
             playBtn.menuAction = PlayGame;
             makeBtn.name = "Make";
             makeBtn.menuAction = ((TitleScreen)currScreen).SwitchToMakeMenu;
+            exitBtn.name = "Exit";
+            exitBtn.menuAction = Exit;
             makeNewBtn.name = "Start a new puzzle";
             makeNewBtn.menuAction = MakePuzzle;
             makeLoadBtn.name = "Load a puzzle";
             makeLoadBtn.menuAction = LoadPuzzleToMake;
-            ((TitleScreen)currScreen).AssignTitleMenuButtons(new MenuButton[] { playBtn, makeBtn });
+            ((TitleScreen)currScreen).AssignTitleMenuButtons(new MenuButton[] { playBtn, makeBtn, exitBtn });
             ((TitleScreen)currScreen).AssignMakeMenuButtons(new MenuButton[] { makeNewBtn, makeLoadBtn });
 
             base.Initialize();
@@ -142,21 +147,22 @@ namespace PicrossClone {
             currScreen = screenManager.ChangeScreen(titleScreen);
         }
 
+        private void EscapeHandle() {
+            if (screenManager.getCurrentScreenID() == titleScreen) {
+                Exit();
+            } else {
+                ReturnToTitleScreen();
+            }
+        }
+
         /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input, and playing audio.
+        /// XNA Update Loop.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
             inputManager.Update(gameTime);
             currScreen.UpdateMouse(inputManager.MousePosition);
-            if (currScreen.UpdateInput()) {
-                if (screenManager.getCurrentScreenID() == titleScreen) {
-                    Exit();
-                } else {
-                    ReturnToTitleScreen();
-                }
-            }
+            currScreen.UpdateInput();
             currScreen.Update(gameTime);
             cam.Update(gameTime);
 
@@ -164,7 +170,7 @@ namespace PicrossClone {
         }
 
         /// <summary>
-        /// This is called when the game should draw itself.
+        /// XNA Draw Loop.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {

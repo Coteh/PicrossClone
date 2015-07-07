@@ -46,6 +46,7 @@
     <Compile Include="Extenders.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameTimeTicker.cs" />
+    <Compile Include="Global.cs" />
     <Compile Include="ITileCounter.cs" />
     <Compile Include="ITimeTicker.cs" />
     <Compile Include="PaintBoard.cs" />

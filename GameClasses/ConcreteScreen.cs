@@ -15,7 +15,6 @@ namespace GameClasses {
 
         //Bool conditions
         protected bool isPaused;
-        protected bool isExit;
 
         //Input
         protected InputManager inputManager;
@@ -55,7 +54,7 @@ namespace GameClasses {
 
         #region Handling Methods
         protected virtual void EscapeHandle() {
-            isExit = true;
+            
         }
         #endregion
 
@@ -68,9 +67,7 @@ namespace GameClasses {
         public override void Update(GameTime _gameTime) {
         }
 
-        public override bool UpdateInput() {
-            isExit = false;
-            return isExit;
+        public override void UpdateInput() {
         }
 
         public override void UpdateMouse(Vector2 _mousePos) {

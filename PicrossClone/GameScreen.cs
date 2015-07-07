@@ -163,7 +163,7 @@ namespace PicrossClone {
 
         protected override void EscapeHandle() {
             if (playerState == PlayerState.Alive) base.EscapeHandle();
-            else isGoingToExit = true;
+            else Global.ReturnToTitle();
         }
 
         private void WinAction() {
@@ -280,7 +280,7 @@ namespace PicrossClone {
         }
         private void CheckForTitleScreenReturn() {
             if ((playerState == PlayerState.Win || playerState == PlayerState.Dead) && endTimeKeeper.Minutes <= 0 && endTimeKeeper.Seconds <= 0) {
-                isGoingToExit = true;
+                Global.ReturnToTitle();
             }
         }
         #endregion

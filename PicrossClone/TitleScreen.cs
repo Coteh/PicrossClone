@@ -35,10 +35,6 @@ namespace PicrossClone {
 
         public void AssignTitleMenuButtons(MenuButton[] _menuBtnArr) {
             titleMenu.AddMultiple(_menuBtnArr);
-            MenuButton exitBtn;
-            exitBtn.name = "Exit";
-            exitBtn.menuAction = EscapeHandle;
-            titleMenu.Add(exitBtn);
         }
 
         public void AssignMakeMenuButtons(MenuButton[] _menuBtnArr) {
@@ -63,7 +59,7 @@ namespace PicrossClone {
             if (currMenu != titleMenu) {
                 SwitchToTitleMenu();
             } else {
-                isExit = true;
+                Global.EndGame();
             }
         }
 
@@ -78,7 +74,7 @@ namespace PicrossClone {
             base.UpdateMouse(_mousePos);
         }
 
-        public override bool UpdateInput() {
+        public override void UpdateInput() {
             base.UpdateInput();
             if (inputManager.CheckForLeftMouseRelease() || inputManager.CheckForKeyboardPress(Keys.Enter)) {
                 currMenu.Select();
@@ -90,7 +86,6 @@ namespace PicrossClone {
                 currMenu.Move(1);
                 cursor.setCursorPoints(currMenu.GetCurrentMenuItemPosition());
             }
-            return isExit;
         }
 
         public override void Draw(SpriteBatch _spriteBatch) {

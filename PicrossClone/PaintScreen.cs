@@ -233,7 +233,7 @@ namespace PicrossClone {
         }
 
         #region Paint Screen Update
-        public override bool UpdateInput() {
+        public override void UpdateInput() {
             base.UpdateInput();
             if (inputManager.CheckForCtrlHold()) {
                 if (inputManager.CheckForKeyboardPress(Keys.S)) {
@@ -257,7 +257,6 @@ namespace PicrossClone {
                     }
                 }
             }
-            return isExit;
         }
         #endregion
     }

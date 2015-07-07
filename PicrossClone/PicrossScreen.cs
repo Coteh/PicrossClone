@@ -36,7 +36,6 @@ namespace PicrossClone {
 
         //Pause Menu
         Menu pauseMenu;
-        protected bool isGoingToExit;
 
         //Font set used for the game
         protected FontHolder gameFont;
@@ -253,10 +252,8 @@ namespace PicrossClone {
             base.UpdateMouse(_mousePos);
         }
 
-        public override bool UpdateInput() {
+        public override void UpdateInput() {
             base.UpdateInput();
-            isExit = isGoingToExit;
-            isGoingToExit = false;
             if (inputManager.CheckForKeyboardPress(Keys.Enter)) {
                 Pause();
             }
@@ -314,19 +311,18 @@ namespace PicrossClone {
             if (inputManager.CheckForLeftMouseRelease() || inputManager.CheckForRightMouseRelease()) {
                 SelectRelease();
             }
-            return isExit;
         }
 
         protected override void EscapeHandle() {
             if (isPaused) {
-                isGoingToExit = true;
+                Global.ReturnToTitle();
             } else {
                 Pause();
             }
         }
 
         private void ExitGame() {
-            isGoingToExit = true;
+            Global.ReturnToTitle();
         }
 
         /// <summary>
