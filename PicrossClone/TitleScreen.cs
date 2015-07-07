@@ -6,6 +6,7 @@ using GameClasses;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Input;
 
 namespace PicrossClone {
     public class TitleScreen : ConcreteScreen {
@@ -77,16 +78,15 @@ namespace PicrossClone {
             base.UpdateMouse(_mousePos);
         }
 
-        public override bool UpdateInput(int[] _inputState) {
-            base.UpdateInput(_inputState);
-            //If left select OR left held and mouse is in new grid point (to avoid duplicate clicks)
-            if (selectState.Has(SelectState.LEFT_RELEASE) || inputState.Has(InputState.START)) {
+        public override bool UpdateInput() {
+            base.UpdateInput();
+            if (inputManager.CheckForLeftMouseRelease() || inputManager.CheckForKeyboardPress(Keys.Enter)) {
                 currMenu.Select();
             }
-            if (inputState.Has(InputState.MOVE_UP)) {
+            if (inputManager.CheckForKeyboardPress(Keys.Up)) {
                 currMenu.Move(-1);
                 cursor.setCursorPoints(currMenu.GetCurrentMenuItemPosition());
-            } else if (inputState.Has(InputState.MOVE_DOWN)) {
+            } else if (inputManager.CheckForKeyboardPress(Keys.Down)) {
                 currMenu.Move(1);
                 cursor.setCursorPoints(currMenu.GetCurrentMenuItemPosition());
             }

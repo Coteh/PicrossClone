@@ -45,6 +45,11 @@ namespace PicrossClone {
         private float selectDelay;
         private const float MAX_SELECT_DELAY = 0.1f;
 
+        private int holdDownDelay;
+        private const int MAX_HOLD_DOWN_DELAY = 700;
+        private int moveDelay;
+        private const int MAX_MOVE_DELAY = 50;
+
         //Delegate methods
         public delegate void DrawCalls(SpriteBatch _spriteBatch);
         protected DrawCalls drawCalls;
@@ -212,19 +217,31 @@ namespace PicrossClone {
                     selectDelay += (float)_gameTime.ElapsedGameTime.TotalSeconds;
                 }
             }
+            if (holdDownDelay > 0) {
+                if (holdDownDelay < MAX_HOLD_DOWN_DELAY) {
+                    holdDownDelay += (int)(_gameTime.ElapsedGameTime.TotalSeconds * 1000);
+                }
+            }
+            if (moveDelay > 0) {
+                if (moveDelay >= MAX_MOVE_DELAY) {
+                    moveDelay = 0;
+                } else {
+                    moveDelay += (int)(_gameTime.ElapsedGameTime.TotalSeconds * 1000);
+                }
+            }
             if (updateCalls != null) updateCalls(_gameTime);
         }
 
         private void PauseUpdate(GameTime _gameTime) {
             //Updating pause menu
             pauseMenu.Update(mousePos + camera.Position, false, false);
-            if (selectState.Has(SelectState.LEFT_RELEASE)) {
+            if (inputManager.CheckForLeftMouseRelease()) {
                 pauseMenu.Select();
             }  
-            if (inputState.Has(InputState.MOVE_UP)) {
+            if (inputManager.CheckForKeyboardPress(Keys.Up)) {
                 pauseMenu.Move(-1);
                 cursor.setCursorPoints(pauseMenu.GetCurrentMenuItemPosition());
-            } else if (inputState.Has(InputState.MOVE_DOWN)) {
+            } else if (inputManager.CheckForKeyboardPress(Keys.Down)) {
                 pauseMenu.Move(1);
                 cursor.setCursorPoints(pauseMenu.GetCurrentMenuItemPosition());
             }
@@ -236,39 +253,65 @@ namespace PicrossClone {
             base.UpdateMouse(_mousePos);
         }
 
-        public override bool UpdateInput(int[] _inputState) {
-            base.UpdateInput(_inputState);
+        public override bool UpdateInput() {
+            base.UpdateInput();
             isExit = isGoingToExit;
             isGoingToExit = false;
-            if (inputState.Has(InputState.START)) {
+            if (inputManager.CheckForKeyboardPress(Keys.Enter)) {
                 Pause();
             }
             if (!isPaused) {
-                if (inputState.Has(InputState.MOVE_RIGHT)) {
-                    moveGridCursor(1, 0);
-                }
-                if (inputState.Has(InputState.MOVE_LEFT)) {
-                    moveGridCursor(-1, 0);
-                }
-                if (inputState.Has(InputState.MOVE_UP)) {
-                    moveGridCursor(0, -1);
-                }
-                if (inputState.Has(InputState.MOVE_DOWN)) {
-                    moveGridCursor(0, 1);
+                if (holdDownDelay <= 0) {
+                    if (inputManager.CheckForKeyboardPress(Keys.Right)) {
+                        moveGridCursor(1, 0);
+                        holdDownDelay = 1;
+                    }
+                    if (inputManager.CheckForKeyboardPress(Keys.Left)) {
+                        moveGridCursor(-1, 0);
+                        holdDownDelay = 1;
+                    }
+                    if (inputManager.CheckForKeyboardPress(Keys.Up)) {
+                        moveGridCursor(0, -1);
+                        holdDownDelay = 1;
+                    }
+                    if (inputManager.CheckForKeyboardPress(Keys.Down)) {
+                        moveGridCursor(0, 1);
+                        holdDownDelay = 1;
+                    }
+                } else if (holdDownDelay >= MAX_HOLD_DOWN_DELAY && moveDelay == 0) {
+                    if (inputManager.CheckForKeyboardHold(Keys.Right)) {
+                        moveGridCursor(1, 0);
+                        moveDelay = 1;
+                    }
+                    if (inputManager.CheckForKeyboardHold(Keys.Left)) {
+                        moveGridCursor(-1, 0);
+                        moveDelay = 1;
+                    }
+                    if (inputManager.CheckForKeyboardHold(Keys.Up)) {
+                        moveGridCursor(0, -1);
+                        moveDelay = 1;
+                    }
+                    if (inputManager.CheckForKeyboardHold(Keys.Down)) {
+                        moveGridCursor(0, 1);
+                        moveDelay = 1;
+                    }
+                    if (!inputManager.CheckForKeyboardHold(Keys.Up) && !inputManager.CheckForKeyboardHold(Keys.Down) && !inputManager.CheckForKeyboardHold(Keys.Left) && !inputManager.CheckForKeyboardHold(Keys.Right)) {
+                        holdDownDelay = 0;
+                    }
                 }
             }
             //If left select OR left held and mouse is in new grid point (to avoid duplicate clicks)
-            if (selectState.Has(SelectState.LEFT_SELECT) || (selectState.Has(SelectState.LEFT_HOLD) && lastLeftClickedPoint != mouseGridPoint)) {
+            if (inputManager.CheckForLeftMouseClick() || inputManager.CheckForKeyboardPress(Keys.Space) || ((inputManager.CheckForLeftMouseHold() || inputManager.CheckForKeyboardHold(Keys.Space)) && lastLeftClickedPoint != mouseGridPoint)) {
                 if (leftSelectActions != null) leftSelectActions();
                 lastLeftClickedPoint = mouseGridPoint;
             }
             //If right select OR right held and mouse is in new grid point (to avoid duplicate clicks)
-            if (selectState.Has(SelectState.RIGHT_SELECT) || (selectState.Has(SelectState.RIGHT_HOLD) && lastRightClickedPoint != mouseGridPoint)) {
+            if (inputManager.CheckForRightMouseClick() || (inputManager.CheckForRightMouseHold() && lastRightClickedPoint != mouseGridPoint)) {
                 if (rightSelectActions != null) rightSelectActions();
                 lastRightClickedPoint = mouseGridPoint;
             }
             //If left or right released (to be split later)
-            if (selectState.Has(SelectState.LEFT_RELEASE) || selectState.Has(SelectState.RIGHT_RELEASE)) {
+            if (inputManager.CheckForLeftMouseRelease() || inputManager.CheckForRightMouseRelease()) {
                 SelectRelease();
             }
             return isExit;

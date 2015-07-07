@@ -5,6 +5,7 @@ using System.Text;
 using GameClasses;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace PicrossClone {
     public class PaintScreen : PicrossScreen {
@@ -232,26 +233,29 @@ namespace PicrossClone {
         }
 
         #region Paint Screen Update
-        public override bool UpdateInput(int[] _inputState) {
-            base.UpdateInput(_inputState);
-            if (controlInputs.Has(ControlInputs.SAVE)) {
-                SavePuzzle();
-            } else if (controlInputs.Has(ControlInputs.OPEN)){
-                LoadPuzzle();
-            } else if (controlInputs.Has(ControlInputs.NEW)) {
-                resetBoard();
-            }
-            if (controlInputs.Has(ControlInputs.ADJUST_RIGHT)) {
-                adjustBoardSize(1, 0);
-            }
-            if (controlInputs.Has(ControlInputs.ADJUST_LEFT)) {
-                adjustBoardSize(-1, 0);
-            }
-            if (controlInputs.Has(ControlInputs.ADJUST_UP)) {
-                adjustBoardSize(0, -1);
-            }
-            if (controlInputs.Has(ControlInputs.ADJUST_DOWN)) {
-                adjustBoardSize(0, 1);
+        public override bool UpdateInput() {
+            base.UpdateInput();
+            if (inputManager.CheckForCtrlHold()) {
+                if (inputManager.CheckForKeyboardPress(Keys.S)) {
+                    SavePuzzle();
+                } else if (inputManager.CheckForKeyboardPress(Keys.O)) {
+                    LoadPuzzle();
+                } else if (inputManager.CheckForKeyboardPress(Keys.N)) {
+                    resetBoard();
+                } else {
+                    if (inputManager.CheckForKeyboardPress(Keys.Right)) {
+                        adjustBoardSize(1, 0);
+                    }
+                    if (inputManager.CheckForKeyboardPress(Keys.Left)) {
+                        adjustBoardSize(-1, 0);
+                    }
+                    if (inputManager.CheckForKeyboardPress(Keys.Up)) {
+                        adjustBoardSize(0, -1);
+                    }
+                    if (inputManager.CheckForKeyboardPress(Keys.Down)) {
+                        adjustBoardSize(0, 1);
+                    }
+                }
             }
             return isExit;
         }

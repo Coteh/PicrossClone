@@ -53,7 +53,7 @@ namespace PicrossClone {
         /// </summary>
         protected override void Initialize() {
             //Initalizing Input Manager
-            inputManager = new InputManager();
+            inputManager = InputManager.Instance;
             //Initalizing static assets
             Assets.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Assets.pixel.SetData(new[] { Color.White });
@@ -150,7 +150,7 @@ namespace PicrossClone {
         protected override void Update(GameTime gameTime) {
             inputManager.Update(gameTime);
             currScreen.UpdateMouse(inputManager.MousePosition);
-            if (currScreen.UpdateInput(inputManager.InputEnums)) {
+            if (currScreen.UpdateInput()) {
                 if (screenManager.getCurrentScreenID() == titleScreen) {
                     Exit();
                 } else {

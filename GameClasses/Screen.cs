@@ -23,7 +23,7 @@ namespace GameClasses {
         public abstract void LoadFonts(FontHolder _fontHolder);
         public abstract void Update(GameTime _gameTime);
         public virtual void UpdateMouse(Vector2 _mousePos) { }
-        public virtual bool UpdateInput(int[] _inputState) { return false; }
+        public virtual bool UpdateInput() { return false;  }
         public abstract void Draw(SpriteBatch _spriteBatch);
         public abstract void UnloadScreen();
     }
