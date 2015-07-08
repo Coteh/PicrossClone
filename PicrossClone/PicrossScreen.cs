@@ -303,12 +303,12 @@ namespace PicrossClone {
                 lastLeftClickedPoint = mouseGridPoint;
             }
             //If right select OR right held and mouse is in new grid point (to avoid duplicate clicks)
-            if (inputManager.CheckForRightMouseClick() || (inputManager.CheckForRightMouseHold() && lastRightClickedPoint != mouseGridPoint)) {
+            if (inputManager.CheckForRightMouseClick() || inputManager.CheckForKeyboardPress(Keys.B) || ((inputManager.CheckForRightMouseHold() || inputManager.CheckForKeyboardHold(Keys.B)) && lastRightClickedPoint != mouseGridPoint)) {
                 if (rightSelectActions != null) rightSelectActions();
                 lastRightClickedPoint = mouseGridPoint;
             }
             //If left or right released (to be split later)
-            if (inputManager.CheckForLeftMouseRelease() || inputManager.CheckForRightMouseRelease()) {
+            if (inputManager.CheckForLeftMouseRelease() || inputManager.CheckForKeyboardRelease(Keys.Space) || inputManager.CheckForRightMouseRelease() || inputManager.CheckForKeyboardRelease(Keys.B)) {
                 SelectRelease();
             }
         }

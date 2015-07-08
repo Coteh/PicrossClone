@@ -68,6 +68,9 @@ namespace GameClasses {
         }
 
         public override void UpdateInput() {
+            if (inputManager.CheckForKeyboardPress(Keys.Escape)) {
+                EscapeHandle();
+            }
         }
 
         public override void UpdateMouse(Vector2 _mousePos) {
