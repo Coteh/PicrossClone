@@ -12,6 +12,12 @@ namespace PicrossClone {
         //Height and width of board
         int boardHeight, boardWidth;
 
+        //Maximum Board Dimensions
+        const int MIN_BOARD_WIDTH = 2;
+        const int MAX_BOARD_WIDTH = 30;
+        const int MIN_BOARD_HEIGHT = 2;
+        const int MAX_BOARD_HEIGHT = 30;
+
         //Puzzle data
         PuzzleData puzzle;
 
@@ -96,8 +102,9 @@ namespace PicrossClone {
 
         #region Board Adjustment
         private void adjustBoardSize(int _xMagnitude, int _yMagnitude) {
-            if (boardWidth + _xMagnitude < 2) return; //can't adjust the board horizontally less than this
-            if (boardHeight + _yMagnitude < 2) return; //can't adjust the board vertically less than this
+            if (_xMagnitude == 0 && _yMagnitude == 0) return; //not changing the board size at all, exit method
+            if ((boardWidth + _xMagnitude < MIN_BOARD_WIDTH && _xMagnitude < 0) || (boardWidth + _xMagnitude > MAX_BOARD_WIDTH && _xMagnitude > 0)) return; //can't adjust the board horizontally less than min nor greater than max
+            if ((boardHeight + _yMagnitude < MIN_BOARD_HEIGHT && _yMagnitude < 0) || (boardWidth + _yMagnitude > MAX_BOARD_HEIGHT && _yMagnitude > 0)) return; //can't adjust the board vertically less than min nor greater than max
             ((PaintBoard)board).AdjustBoard(_xMagnitude, _yMagnitude);
             int[,] oldPuzzle = new int[boardWidth, boardHeight];
             for (int i = 0; i < boardWidth; i++) {
@@ -116,6 +123,12 @@ namespace PicrossClone {
             }
             if (_xMagnitude < 0 || _yMagnitude < 0) { //if the board was shrunk
                 CountEverything(); //recount everything because some of the board blocks may have been lost
+                if (mouseGridArrowPoint.X > boardWidth - 1) {
+                    mouseGridArrowPoint.X = boardWidth - 1;
+                }
+                if (mouseGridArrowPoint.Y > boardHeight - 1) {
+                    mouseGridArrowPoint.Y = boardHeight - 1;
+                }
             } else { //otherwise... just copy the count data over to a new count data array and fill in the new spots with 0s
                 //Create a new instance of tile counter, and put the current puzzle into it
                 tileCounter = new BoardTileCounter(puzzle.puzzle);

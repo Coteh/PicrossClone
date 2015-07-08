@@ -149,7 +149,7 @@ namespace PicrossClone {
         }
 
         private void EscapeHandle() {
-            if (screenManager.getCurrentScreenID() == titleScreen) {
+            if (screenManager.CurrentScreenID == titleScreen) {
                 Exit();
             } else {
                 ReturnToTitleScreen();

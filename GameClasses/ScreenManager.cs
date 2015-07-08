@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace GameClasses {
     public class ScreenManager {
-        private List<Screen> screenList;
+        private readonly List<Screen> screenList;
         private int currScreen = -1;
 
         public ScreenManager() {
             screenList = new List<Screen>();
         }
 
-        public int getCurrentScreenID() {
-            return currScreen;
+        public int CurrentScreenID {
+            get {
+                return currScreen;
+            }
         }
 
         public Screen ChangeScreen(int _screenID) {
