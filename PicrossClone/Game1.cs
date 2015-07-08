@@ -55,8 +55,9 @@ namespace PicrossClone {
             //Initalizing Input Manager
             inputManager = InputManager.Instance;
             //Initialize Global stuff
-            Global.EndGame = Exit;
-            Global.ReturnToTitle = ReturnToTitleScreen;
+            Global.GlobalMessenger = new Messenger();
+            Global.GlobalMessenger.AddMessageAction("ExitGame", Exit);
+            Global.GlobalMessenger.AddMessageAction("ReturnToTitle", ReturnToTitleScreen);
             //Initalizing static assets
             Assets.pixel = new Texture2D(GraphicsDevice, 1, 1);
             Assets.pixel.SetData(new[] { Color.White });

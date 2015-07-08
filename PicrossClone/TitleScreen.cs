@@ -59,7 +59,7 @@ namespace PicrossClone {
             if (currMenu != titleMenu) {
                 SwitchToTitleMenu();
             } else {
-                Global.EndGame();
+                Global.GlobalMessenger.CallMessage("ExitGame");
             }
         }
 

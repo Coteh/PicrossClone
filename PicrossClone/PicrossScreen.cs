@@ -315,14 +315,14 @@ namespace PicrossClone {
 
         protected override void EscapeHandle() {
             if (isPaused) {
-                Global.ReturnToTitle();
+                Global.GlobalMessenger.CallMessage("ReturnToTitle");
             } else {
                 Pause();
             }
         }
 
         private void ExitGame() {
-            Global.ReturnToTitle();
+            Global.GlobalMessenger.CallMessage("ReturnToTitle");
         }
 
         /// <summary>
