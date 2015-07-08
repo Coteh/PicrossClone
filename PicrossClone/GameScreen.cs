@@ -274,7 +274,7 @@ namespace PicrossClone {
             return true;
         }
         private void CheckForGameOver() {
-            if (playerState == PlayerState.Alive && timeKeeper.Minutes <= 0 && timeKeeper.Seconds <= 0) {
+            if (timeKeeper != null && playerState == PlayerState.Alive && timeKeeper.Minutes <= 0 && timeKeeper.Seconds <= 0) {
                 LoseAction();
             }
         }
@@ -290,7 +290,9 @@ namespace PicrossClone {
             base.Update(_gameTime);
             //Updating the Game Time Keeper
             CheckForGameOver();
-            timeTicker.Update(_gameTime);
+            if (timeTicker != null) {
+                timeTicker.Update(_gameTime);
+            }
             //Updating the End Time Keeper
             CheckForTitleScreenReturn();
             if (endTimeTicker != null) {
