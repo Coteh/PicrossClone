@@ -33,6 +33,12 @@ namespace GameClasses {
         }
         #endregion
 
+        #region Properties
+        public override bool IsPaused {
+            get { return isPaused; }
+        }
+        #endregion
+
         #region Set Methods
         /// <summary>
         /// Setting the Screen's Camera2D object
@@ -43,6 +49,9 @@ namespace GameClasses {
         }
         public override void setCursor(Cursor _cursor) {
             cursor = _cursor;
+        }
+        public override void setPause(bool _isPaused) {
+            isPaused = _isPaused;
         }
         #endregion
 

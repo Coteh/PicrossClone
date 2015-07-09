@@ -65,6 +65,11 @@ namespace PicrossClone {
                 imageCursorOffsetVec = new Vector2(9.4f, 9.4f);
         }
 
+        public override void setPause(bool _isPaused) {
+            base.setPause(_isPaused);
+            PauseChecks();
+        }
+
         public override void Initalize() {
             //This Initalize only happens if this class is initalized directly, rather than a subclass
             int boardWidth = 20, boardHeight = 20;
@@ -161,7 +166,7 @@ namespace PicrossClone {
 
         protected virtual void SelectRelease() { }
 
-        private void PauseChecks() {
+        protected virtual void PauseChecks() {
             if (isPaused) {
                 updateCalls += PauseUpdate;
                 drawCalls += pauseMenu.DrawMenu;
@@ -185,8 +190,7 @@ namespace PicrossClone {
         /// Unpauses the game if it is paused.
         /// </summary>
         protected virtual void Pause() {
-            isPaused = !isPaused;
-            PauseChecks();
+            setPause(!isPaused);
         }
 
         /// <summary>

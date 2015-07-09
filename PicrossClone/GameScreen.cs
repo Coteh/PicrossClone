@@ -144,14 +144,21 @@ namespace PicrossClone {
         #endregion
 
         #region Actions
-        protected override void Pause(){
+        public override void setPause(bool _isPaused) {
             if (playerState == PlayerState.Alive) {
-                base.Pause();
-                if (isPaused) {
-                    drawCalls -= GameScreenRunningDraw;
-                } else {
-                    drawCalls += GameScreenRunningDraw;
-                }
+                base.setPause(_isPaused);
+            }
+        }
+
+        protected override void PauseChecks() {
+            base.PauseChecks();
+            if (timeKeeper != null) {
+                timeTicker.SetEnabled(!isPaused);
+            }
+            if (isPaused) {
+                drawCalls -= GameScreenRunningDraw;
+            } else {
+                drawCalls += GameScreenRunningDraw;
             }
         }
 

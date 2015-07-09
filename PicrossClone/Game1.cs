@@ -163,7 +163,11 @@ namespace PicrossClone {
         protected override void Update(GameTime gameTime) {
             inputManager.Update(gameTime);
             currScreen.UpdateMouse(inputManager.MousePosition);
-            currScreen.UpdateInput();
+            if (IsActive) {
+                currScreen.UpdateInput();
+            } else if (currScreen != null && !currScreen.IsPaused) {
+                currScreen.setPause(true);
+            }
             currScreen.Update(gameTime);
             cam.Update(gameTime);
 
