@@ -1,11 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace GameClasses {
     /* Concrete Screen
@@ -17,13 +15,9 @@ namespace GameClasses {
 
         //Bool conditions
         protected bool isPaused;
-        protected bool isExit;
 
-        //Input Enums
-        protected InputState inputState;
-        protected ControlInputs controlInputs;
-        protected SelectState selectState;
-        protected MiscInputs miscInputs;
+        //Input
+        protected InputManager inputManager;
 
         //Mouse position vectors
         protected Vector2 mousePos;
@@ -34,7 +28,14 @@ namespace GameClasses {
 
         #region Initalize Methods
         public ConcreteScreen() {
+            inputManager = InputManager.Instance;
             Initalize();
+        }
+        #endregion
+
+        #region Properties
+        public override bool IsPaused {
+            get { return isPaused; }
         }
         #endregion
 
@@ -49,6 +50,9 @@ namespace GameClasses {
         public override void setCursor(Cursor _cursor) {
             cursor = _cursor;
         }
+        public override void setPause(bool _isPaused) {
+            isPaused = _isPaused;
+        }
         #endregion
 
         #region Loading Methods
@@ -59,7 +63,7 @@ namespace GameClasses {
 
         #region Handling Methods
         protected virtual void EscapeHandle() {
-            isExit = true;
+            
         }
         #endregion
 
@@ -72,16 +76,10 @@ namespace GameClasses {
         public override void Update(GameTime _gameTime) {
         }
 
-        public override bool UpdateInput(int[] _inputState) {
-            isExit = false;
-            inputState = (InputState)_inputState[0];
-            controlInputs = (ControlInputs)_inputState[1];
-            selectState = (SelectState)_inputState[2];
-            miscInputs = (MiscInputs)_inputState[3];
-            if (miscInputs.Has(MiscInputs.ESCAPE)) {
+        public override void UpdateInput() {
+            if (inputManager.CheckForKeyboardPress(Keys.Escape)) {
                 EscapeHandle();
             }
-            return isExit;
         }
 
         public override void UpdateMouse(Vector2 _mousePos) {

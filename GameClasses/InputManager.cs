@@ -1,133 +1,108 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace GameClasses {
-    public enum InputState {
-        NONE = 0,
-        MOVE_RIGHT = 1,
-        MOVE_LEFT = 2,
-        MOVE_UP = 4,
-        MOVE_DOWN = 8,
-        START = 16
-    }
-    public enum ControlInputs {
-        NONE = 0,
-        SAVE = 1,
-        OPEN = 2,
-        NEW = 4,
-        ADJUST_RIGHT = 8,
-        ADJUST_LEFT = 16,
-        ADJUST_UP = 32,
-        ADJUST_DOWN = 64
-    }
-    public enum SelectState {
-        NONE = 0,
-        LEFT_SELECT = 1,
-        RIGHT_SELECT = 2,
-        LEFT_HOLD = 4,
-        RIGHT_HOLD = 8,
-        LEFT_RELEASE = 16,
-        RIGHT_RELEASE = 32
-    }
-    public enum MiscInputs {
-        NONE = 0,
-        ESCAPE = 1
-    }
-    
     public class InputManager {
-        InputHelper inputHelper;
+        /*INSTANCE*/
+        private static InputManager instance;
+        /*FIELDS*/
+        private GamePadState currGamePadState;
+        private GamePadState prevGamePadState;
+#if(!XBOX)
+        private MouseState currMouseState;
+        private MouseState prevMouseState;
+        private KeyboardState currKeyboardState;
+        private KeyboardState prevKeyboardState;
+#endif
+        private PlayerIndex index;
 
-        InputState inputState;
-        ControlInputs controlInputs;
-        SelectState selectState;
-        MiscInputs miscInputs;
+        public static InputManager Instance {
+            get {
+                if (instance == null) {
+                    instance = new InputManager();
+                }
+                return instance;
+            }
+        }
 
-        int inputDelay = 0;
-        const int TOTAL_INPUT_DELAY = 100;
+        public PlayerIndex GamepadPlayerIndex {
+            get { return index; }
+            set { index = value; }
+        }
 
-        public int[] InputEnums { get { return new int[]{(int)inputState, (int)controlInputs, (int)selectState, (int)miscInputs}; } }
+        public Vector2 MousePosition { get { return new Vector2(currMouseState.X, currMouseState.Y); } }
 
-        public Vector2 MousePosition { get { return inputHelper.GetMousePosition();} }
+        public Vector2 DeltaMousePosition { get { return new Vector2(currMouseState.X - prevMouseState.X, currMouseState.Y - prevMouseState.Y); } }
 
-        public InputManager() {
-            inputHelper = InputHelper.Instance;
+        public int MouseScrollValue { get { return currMouseState.ScrollWheelValue; } }
+
+        private InputManager() {
+            index = PlayerIndex.One;
         }
 
         public void Update(GameTime _gameTime) {
-            inputHelper.Update();
-            inputState = InputState.NONE;
-            controlInputs = ControlInputs.NONE;
-            selectState = SelectState.NONE;
-            miscInputs = MiscInputs.NONE;
-            if (inputHelper.CheckForKeyboardRelease(Keys.Escape)) {
-                miscInputs |= MiscInputs.ESCAPE;
-            }
-            if (inputDelay <= 0) {
-                if (inputHelper.CheckForKeyboardHold(Keys.Right)) {
-                    inputState |= InputState.MOVE_RIGHT;
-                    inputDelay = TOTAL_INPUT_DELAY;
-                }
-                if (inputHelper.CheckForKeyboardHold(Keys.Left)) {
-                    inputState |= InputState.MOVE_LEFT;
-                    inputDelay = TOTAL_INPUT_DELAY;
-                }
-                if (inputHelper.CheckForKeyboardHold(Keys.Up)) {
-                    inputState |= InputState.MOVE_UP;
-                    inputDelay = TOTAL_INPUT_DELAY;
-                }
-                if (inputHelper.CheckForKeyboardHold(Keys.Down)) {
-                    inputState |= InputState.MOVE_DOWN;
-                    inputDelay = TOTAL_INPUT_DELAY;
-                }
+            if (prevGamePadState == null && currGamePadState == null) {
+                prevGamePadState = currGamePadState = GamePad.GetState(index);
             } else {
-                inputDelay -= (int)(_gameTime.ElapsedGameTime.TotalSeconds * 1000);
+                prevGamePadState = currGamePadState;
+                currGamePadState = GamePad.GetState(index);
             }
-            if (inputHelper.CheckForLeftClick() || inputHelper.CheckForKeyboardPress(Keys.Space)) {
-                selectState |= SelectState.LEFT_SELECT;
+            if (prevMouseState == null && currMouseState == null) {
+                prevMouseState = currMouseState = Mouse.GetState();
+            } else {
+                prevMouseState = currMouseState;
+                currMouseState = Mouse.GetState();
             }
-            if (inputHelper.CheckForLeftHold() || inputHelper.CheckForKeyboardHold(Keys.Space)) {
-                selectState |= SelectState.LEFT_HOLD;
+            if (prevKeyboardState == null && currKeyboardState == null) {
+                prevKeyboardState = currKeyboardState = Keyboard.GetState();
+            } else {
+                prevKeyboardState = currKeyboardState;
+                currKeyboardState = Keyboard.GetState();
             }
-            if (inputHelper.CheckForRightClick() || inputHelper.CheckForKeyboardPress(Keys.B)) {
-                selectState |= SelectState.RIGHT_SELECT;
-            }
-            if (inputHelper.CheckForRightHold() || inputHelper.CheckForKeyboardHold(Keys.B)) {
-                selectState |= SelectState.RIGHT_HOLD;
-            }
-            if (inputHelper.CheckForLeftRelease() || inputHelper.CheckForKeyboardRelease(Keys.Space)) {
-                selectState |= SelectState.LEFT_RELEASE;
-            }
-            if (inputHelper.CheckForRightRelease() || inputHelper.CheckForKeyboardRelease(Keys.B)) {
-                selectState |= SelectState.RIGHT_RELEASE;
-            }
-            if (inputHelper.CheckForKeyboardRelease(Keys.Enter)) {
-                inputState |= InputState.START;
-            }
-            if (inputHelper.CheckForKeyboardHold(Keys.LeftControl) || inputHelper.CheckForKeyboardHold(Keys.RightControl)) {
-                if (inputHelper.CheckForKeyboardRelease(Keys.S)) {
-                    controlInputs |= ControlInputs.SAVE;
-                } else if (inputHelper.CheckForKeyboardRelease(Keys.O)) {
-                    controlInputs |= ControlInputs.OPEN;
-                } else if (inputHelper.CheckForKeyboardRelease(Keys.N)) {
-                    controlInputs |= ControlInputs.NEW;
-                }
-                if (inputHelper.CheckForKeyboardRelease(Keys.Right)) {
-                    controlInputs |= ControlInputs.ADJUST_RIGHT;
-                }
-                if (inputHelper.CheckForKeyboardRelease(Keys.Left)) {
-                    controlInputs |= ControlInputs.ADJUST_LEFT;
-                }
-                if (inputHelper.CheckForKeyboardRelease(Keys.Up)) {
-                    controlInputs |= ControlInputs.ADJUST_UP;
-                }
-                if (inputHelper.CheckForKeyboardRelease(Keys.Down)) {
-                    controlInputs |= ControlInputs.ADJUST_DOWN;
-                }
-            }
+        }
+        //Gamepad Methods
+        public bool CheckForGamepadPress(Buttons _button) {
+            return (currGamePadState.IsButtonDown(_button) && prevGamePadState.IsButtonUp(_button));
+        }
+        public bool CheckForGamepadHold(Buttons _button) {
+            return (currGamePadState.IsButtonDown(_button) && prevGamePadState.IsButtonDown(_button));
+        }
+        public bool CheckForGamepadRelease(Buttons _button) {
+            return (currGamePadState.IsButtonUp(_button) && prevGamePadState.IsButtonDown(_button));
+        }
+        //Keyboard Methods
+        public bool CheckForKeyboardPress(Keys _key) {
+            return (currKeyboardState.IsKeyDown(_key) && prevKeyboardState.IsKeyUp(_key));
+        }
+        public bool CheckForKeyboardHold(Keys _key) {
+            return (currKeyboardState.IsKeyDown(_key) && prevKeyboardState.IsKeyDown(_key));
+        }
+        public bool CheckForKeyboardRelease(Keys _key) {
+            return (currKeyboardState.IsKeyUp(_key) && prevKeyboardState.IsKeyDown(_key));
+        }
+        public bool CheckForCtrlHold() {
+            return (CheckForKeyboardHold(Keys.LeftControl) || CheckForKeyboardHold(Keys.RightControl));
+        }
+        //Mouse Methods
+        public bool CheckForLeftMouseClick() {
+            return (currMouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released);
+        }
+        public bool CheckForLeftMouseHold() {
+            return (currMouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Pressed);
+        }
+        public bool CheckForLeftMouseRelease() {
+            return (currMouseState.LeftButton == ButtonState.Released && prevMouseState.LeftButton == ButtonState.Pressed);
+        }
+        public bool CheckForRightMouseClick() {
+            return (currMouseState.RightButton == ButtonState.Pressed && prevMouseState.RightButton == ButtonState.Released);
+        }
+        public bool CheckForRightMouseHold() {
+            return (currMouseState.RightButton == ButtonState.Pressed && prevMouseState.RightButton == ButtonState.Pressed);
+        }
+        public bool CheckForRightMouseRelease() {
+            return (currMouseState.RightButton == ButtonState.Released && prevMouseState.RightButton == ButtonState.Pressed);
         }
     }
 }

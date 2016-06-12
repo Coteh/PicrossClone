@@ -144,14 +144,21 @@ namespace PicrossClone {
         #endregion
 
         #region Actions
-        protected override void Pause(){
+        public override void setPause(bool _isPaused) {
             if (playerState == PlayerState.Alive) {
-                base.Pause();
-                if (isPaused) {
-                    drawCalls -= GameScreenRunningDraw;
-                } else {
-                    drawCalls += GameScreenRunningDraw;
-                }
+                base.setPause(_isPaused);
+            }
+        }
+
+        protected override void PauseChecks() {
+            base.PauseChecks();
+            if (timeKeeper != null) {
+                timeTicker.SetEnabled(!isPaused);
+            }
+            if (isPaused) {
+                drawCalls -= GameScreenRunningDraw;
+            } else {
+                drawCalls += GameScreenRunningDraw;
             }
         }
 
@@ -163,7 +170,7 @@ namespace PicrossClone {
 
         protected override void EscapeHandle() {
             if (playerState == PlayerState.Alive) base.EscapeHandle();
-            else isGoingToExit = true;
+            else Global.GlobalMessenger.CallMessage("ReturnToTitle");
         }
 
         private void WinAction() {
@@ -274,13 +281,13 @@ namespace PicrossClone {
             return true;
         }
         private void CheckForGameOver() {
-            if (playerState == PlayerState.Alive && timeKeeper.Minutes <= 0 && timeKeeper.Seconds <= 0) {
+            if (timeKeeper != null && playerState == PlayerState.Alive && timeKeeper.Minutes <= 0 && timeKeeper.Seconds <= 0) {
                 LoseAction();
             }
         }
         private void CheckForTitleScreenReturn() {
             if ((playerState == PlayerState.Win || playerState == PlayerState.Dead) && endTimeKeeper.Minutes <= 0 && endTimeKeeper.Seconds <= 0) {
-                isGoingToExit = true;
+                Global.GlobalMessenger.CallMessage("ReturnToTitle");
             }
         }
         #endregion
@@ -290,7 +297,9 @@ namespace PicrossClone {
             base.Update(_gameTime);
             //Updating the Game Time Keeper
             CheckForGameOver();
-            timeTicker.Update(_gameTime);
+            if (timeTicker != null) {
+                timeTicker.Update(_gameTime);
+            }
             //Updating the End Time Keeper
             CheckForTitleScreenReturn();
             if (endTimeTicker != null) {
