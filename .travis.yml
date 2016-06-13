@@ -1,5 +1,7 @@
 language: csharp
 solution: PicrossClone.sln
+install:
+    - nuget install MonoGame.Framework.WindowsDX -Version 3.5.1.1679
 script:
     - xbuild /p:Configuration=Release PicrossClone.sln
     - mono ./packages/xunit.runners.*/tools/xunit.console.clr4.exe ./UnitTests/bin/Release/UnitTests.dll
