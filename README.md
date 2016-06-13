@@ -1,5 +1,6 @@
 ![Screenshot](PicrossClone/Content/Images/Logo.png "PicrossClone")
-=========
+
+[![Build Status](https://travis-ci.org/Coteh/PicrossClone.svg?branch=master)](https://travis-ci.org/Coteh/PicrossClone)
 
 A clone of the popular puzzle title Picross (which also goes by other names such as Nonogram), that I did for fun. Here is a screenshot of how the game looks currently:
 
