@@ -15,6 +15,12 @@ namespace GameClasses {
 
         Texture2D[] imageArr;
 
+        public Vector2 Position {
+            get {
+                return pos;
+            }
+        }
+
         public Cursor(Vector2 _pos) {
             imageArr = new Texture2D[2]; //there are two images, regular cursor and shadow cursor
             pos = _pos;
